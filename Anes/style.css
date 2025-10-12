@@ -15,4 +15,22 @@
 .navbar .box-navbar {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+}
+
+.navbar .box-navbar .menu {
+    display: flex;
+    column-gap: 60px;
+}
+.navbar .box-navbar .menu li {
+    list-style-type: none;
+}
+
+.navbar .box-navbar .menu li a {
+    text-decoration: none;
+    color: white;
+}
+
+.menu-bar {
+    display: none;
 }
