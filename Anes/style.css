@@ -78,7 +78,7 @@ header {
     .menu-bar {
         display: block;
     }
-}
-.navbar .box-navbar .menu {
+    .navbar .box-navbar .menu {
     display: none;
+    }
 }
