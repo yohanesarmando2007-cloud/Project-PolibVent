@@ -8,7 +8,7 @@
 
 /*hero Bg*/
 header {
-    background: url("picture/Hero Bg.jpg");
+    background-image: linear-gradient(rgba(0, 0, 0, 0.7)), url("picture/Hero Bg.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -21,10 +21,22 @@ header {
 }
 
 /*Navbar*/
+.navbar {
+    padding: 20px 0 20px 0;
+    width: 100%;
+    position: fixed;
+}
+
 .navbar .box-navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.navbar .box-navbar .logo img {
+    width: 20%;
+    height: auto;
+    color: white;
 }
 
 .navbar .box-navbar .menu {
@@ -38,6 +50,15 @@ header {
 .navbar .box-navbar .menu li a {
     text-decoration: none;
     color: white;
+    padding: 10px 15px 10px 15px;
+}
+.navbar .box-navbar .menu li a:hover {
+    background-color:rgb(37, 29, 177);
+    transition: all 0.3s ease;
+}
+
+.login-btn {
+    background-color: rgb(52, 41, 255);
 }
 
 .menu-bar {
