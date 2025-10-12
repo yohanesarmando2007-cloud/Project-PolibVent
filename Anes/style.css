@@ -34,8 +34,8 @@ header {
 }
 
 .navbar .box-navbar .logo img {
-    width: 20%;
-    height: auto;
+    width: 30%;
+    height: 30%;
     color: white;
 }
 
@@ -53,12 +53,12 @@ header {
     padding: 10px 15px 10px 15px;
 }
 .navbar .box-navbar .menu li a:hover {
-    background-color:rgb(37, 29, 177);
+    background-color:#251db1;
     transition: all 0.3s ease;
 }
 
 .login-btn {
-    background-color: rgb(52, 41, 255);
+    background-color: #3429ff;
 }
 
 .menu-bar {
@@ -90,5 +90,13 @@ header {
     right: 50%;
     transform: translateX(50%);
     opacity: 0;
+    transition: all 0.3s ease;
+    background-color: #3429ff;
+    }
+
+    .navbar .box-navbar .menu.menu-active {
+    top: 80px;
+    opacity: 1;
+    border-top: 1px solid white;
     }
 }
