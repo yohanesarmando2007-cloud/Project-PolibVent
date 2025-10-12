@@ -6,6 +6,15 @@
     scroll-behavior: smooth;
 }
 
+/*hero Bg*/
+header {
+    background: url("picture/Hero Bg.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
 .container {
     width: 80%;
     margin-inline: auto;
@@ -33,4 +42,9 @@
 
 .menu-bar {
     display: none;
+}
+
+.hero {
+    width: 100%;
+    min-height: 100vh;
 }
