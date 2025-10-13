@@ -1,3 +1,4 @@
+/* Reset dasar */
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
@@ -5,40 +6,54 @@ body {
   color: #000;
 }
 
-/* Header */
+/* HEADER */
 .header {
   background-color: #d9d9d9;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 30px;
+  padding: 15px 40px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .logo {
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: bold;
 }
 
+/* Tombol keluar */
 .btn-keluar {
-  background-color: red;
+  background-color: #ff4b4b;
   color: white;
   text-decoration: none;
   padding: 10px 25px;
   border-radius: 10px;
   font-weight: bold;
+  transition: all 0.3s ease;
+  display: inline-block;
 }
 
-/* Konten utama */
+.btn-keluar:hover {
+  background-color: #c82333;
+  transform: scale(1.05);
+}
+
+/* KONTEN UTAMA */
 .container {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   padding: 40px 60px;
-  gap: 30px;
+  gap: 40px;
+  flex-wrap: wrap; /* agar responsif di layar kecil */
 }
 
-/* Info Event */
+/* INFO EVENT */
 .info-event {
-  width: 55%;
+  flex: 1 1 55%;
+  min-width: 300px;
 }
 
 .thumbnail {
@@ -51,28 +66,40 @@ body {
   width: 30px;
   height: 30px;
   background-color: #d9d9d9;
+  border-radius: 4px;
 }
 
 h1 {
-  font-size: 26px;
+  font-size: 28px;
   margin-bottom: 15px;
 }
 
 p {
-  line-height: 1.5;
-  font-size: 14px;
+  line-height: 1.6;
+  font-size: 15px;
+  margin-bottom: 15px;
 }
 
 p strong {
   font-weight: bold;
 }
 
-/* Poster Event */
+p a {
+  color: #3429ff;
+  text-decoration: none;
+}
+
+p a:hover {
+  text-decoration: underline;
+}
+
+/* POSTER EVENT */
 .poster-container {
-  width: 40%;
+  flex: 1 1 40%;
   display: flex;
   justify-content: center;
   align-items: center;
+  min-width: 250px;
 }
 
 .poster-img {
@@ -83,4 +110,35 @@ p strong {
   background-color: #d9d9d9;
   border-radius: 6px;
   object-fit: cover;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* RESPONSIVE DESIGN */
+@media screen and (max-width: 900px) {
+  .container {
+    flex-direction: column;
+    padding: 30px 20px;
+  }
+
+  .info-event,
+  .poster-container {
+    width: 100%;
+  }
+
+  .poster-container {
+    margin-top: 30px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  p {
+    font-size: 14px;
+  }
+
+  .btn-keluar {
+    padding: 8px 20px;
+    font-size: 14px;
+  }
 }
