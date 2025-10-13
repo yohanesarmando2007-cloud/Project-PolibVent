@@ -1,0 +1,136 @@
+/* Reset dasar */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Navbar */
+.navbar {
+  background-color: #e8e8e8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 40px;
+}
+
+.logo {
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.nav-buttons .btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  margin-left: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.admin {
+  background-color: #d91a1a;
+  color: white;
+}
+
+.logout {
+  background-color: #ff3d3d;
+  color: white;
+}
+
+.btn:hover {
+  opacity: 0.85;
+}
+
+/* Icon Bar */
+.icon-bar {
+  display: flex;
+  gap: 15px;
+  padding: 30px 40px;
+}
+
+.icon {
+  width: 35px;
+  height: 35px;
+  background-color: #cfcfcf;
+  border-radius: 8px;
+}
+
+/* Agenda Section */
+.agenda {
+  padding: 0 40px 40px 40px;
+}
+
+.agenda h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #111;
+}
+
+/* Card agenda yang bisa diklik */
+.agenda-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 25px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  padding: 15px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+}
+
+.agenda-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+  background-color: #f9f9f9;
+}
+
+.agenda-img {
+  width: 90px;
+  height: 90px;
+  background-color: #ccc;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.agenda-text p {
+  color: #333;
+  line-height: 1.6;
+  font-size: 15px;
+  text-align: justify;
+}
+
+/* Responsif */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .icon-bar {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .agenda-item {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+
+  .agenda-img {
+    width: 70px;
+    height: 70px;
+  }
+
+  .agenda-text p {
+    font-size: 14px;
+  }
+}
