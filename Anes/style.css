@@ -49,7 +49,7 @@ header {
 .hero .box-hero .box:nth-child(1) button {
     width: 180px;
     height: 40px;
-    background-color: #3429ff;
+    background-color: #252399;
     font-weight: bold;
     color: white;
     border: none;
@@ -58,7 +58,7 @@ header {
     transition: all 0.3s ease;
 }
 .hero .box-hero .box:nth-child(1) button:hover {
-    background-color: #251db1;
+    background-color: #12114a;
 }
 .hero .box-hero .box:nth-child(2) img {
     width: 100%;
@@ -72,7 +72,7 @@ header {
     transition: all 0.3s ease;
 }
 .navbar.scrolling-active {
-    background-color: #3429ff;
+    background-color: #252399;
     padding: 20px 0 20px 0;
 }
 
@@ -102,13 +102,13 @@ header {
     padding: 10px 15px 10px 15px;
 }
 .navbar .box-navbar .menu li a:hover {
-    background-color:#251db1;
+    background-color:#12114a;
     transition: all 0.3s ease;
     border-radius: 10px;
 }
 
 .login-btn {
-    background-color: #3429ff;
+    background-color: #252399;
     border-radius: 10px;
 }
 
@@ -126,7 +126,7 @@ header {
 .event .container h2 {
     color: white;
     padding: 10px 0 10PX 0;
-    background-color: #3429ff;
+    background-color: #252399;
     border-radius: 10PX;
     text-align: center;
     font-size: 2vw;
@@ -163,14 +163,14 @@ header {
   width: 100px;
   height: 30px;
   border: none;
-  background-color: #3429ff;
+  background-color: #252399;
   color: white;
   font-weight: bold;
   border-radius: 5px;
   cursor: pointer;
 }
 .event .box-event .box button:hover {
-    background-color: #251db1;
+    background-color: #12114a;
     transition: all 0.3 ease;
 }
 /*max width usability*/
@@ -197,7 +197,7 @@ header {
     transform: translateX(50%);
     opacity: 0;
     transition: all 0.3s ease;
-    background-color: #3429ff;
+    background-color: #252399;
     }
 
     .navbar .box-navbar .menu.menu-active {
