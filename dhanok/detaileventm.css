@@ -26,22 +26,35 @@ body {
   
   /* Tombol Masuk*/
   .btn-masuk {
-    background-color: #ff4b4b;
+    background-color: #FF8040;
     color: white;
     text-decoration: none;
     padding: 10px 25px;
-    border-radius: 10px;
+    border-radius: 4px;
     font-weight: bold;
     transition: all 0.3s ease;
     display: inline-block;
   }
   
-  .btn-keluar:hover {
-    background-color: #c82333;
-    transform: scale(1.05);
+  .btn-masuk:hover {
+    background-color: #ac5529;
+    transition: all 0.3s ease;
   }
 
-  
+  .btn-home {
+    background-color: #FF8040;
+    color: white;
+    text-decoration: none;
+    padding: 10px 25px;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: inline-block;
+  }
+  .btn-home:hover {
+    background-color: #ac5529;
+    transition: all 0.3s ease;
+  }
   
   /* KONTEN UTAMA */
   .container {
