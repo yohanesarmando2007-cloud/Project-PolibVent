@@ -37,7 +37,7 @@ body {
   }
   
   .btn-masuk:hover {
-    background-color: #ac5529;
+    background-color: #b55b2d;
     transition: all 0.3s ease;
   }
 
@@ -52,7 +52,7 @@ body {
     display: inline-block;
   }
   .btn-home:hover {
-    background-color: #ac5529;
+    background-color: #b55b2d;
     transition: all 0.3s ease;
   }
   

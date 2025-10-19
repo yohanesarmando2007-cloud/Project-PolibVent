@@ -121,7 +121,7 @@ header {
   background-color: #FF8040;
   border-radius: 10px;
 }
-.menu li a .login-btn:hover {
+.login-btn:hover {
   background-color: #b55b2d;
 }
 

@@ -1,33 +1,49 @@
 body {
-      font-family: system-ui, sans-serif;
+      font-family: "Open Sans", sans-serif;
       background: #f7fafc;
       margin: 0;
     }
     header {
-      background: #0369a1;
+      background: #001BB7;
       color: white;
       padding: 10px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
+    .logo img {
+      width: 30%;
+      height: 30%;
+    }
     nav ul {
       list-style: none;
       display: flex;
       gap: 15px;
-      padding: 0;
+      padding:10px 15px;
       margin: 0;
+      column-gap: 60px;
+      justify-content: center;
+      align-items: center;
     }
     nav a {
       color: white;
       text-decoration: none;
-      font-weight: 600;
+      font-weight: 400;
+      font-size: 15px;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 15px;
+      align-items: center;
     }
-    .btn-danger {
-      background: #dc2626;
-      padding: 6px 12px;
-      border-radius: 6px;
+    nav a:hover {
+      background-color: #001380;
+      transition: all 0.3s ease;
     }
+    .out-btn {
+    background-color: #FF8040;
+    border-radius: 10px;
+    }
+
     .container {
       padding: 20px;
       max-width: 1000px;

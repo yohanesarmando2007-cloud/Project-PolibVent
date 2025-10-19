@@ -2,7 +2,7 @@
 body {
     margin: 0;
     font-family: "Open Sans", sans-serif;
-    background-color: #fff;
+    background-color: #E9E9E9;
     color: #000;
   }
   
@@ -36,7 +36,7 @@ body {
   }
   
   .btn-keluar:hover {
-    background-color: #ac5529;
+    background-color: #b55b2d;
     transition: all 0.3s ease;
   }
 
@@ -51,7 +51,7 @@ body {
     display: inline-block;
   }
   .btn-home:hover {
-    background-color: #ac5529;
+    background-color: #b55b2d;
     transition: all 0.3s ease;
   }
   
