@@ -132,6 +132,44 @@ header {
   transition: all 0.3s ease;
 }
 
+/*Searching*/
+.search-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 40px 0 50px;
+}
+
+.search-container input {
+  padding: 10px;
+  width: 300px;
+  border-radius: 4px;
+  border: 1px solid #000000;
+  font-size: 14px;
+  transition: border 0.3s ease;
+}
+
+.search-container input:focus {
+  border: 2px solid #0046FF;
+  outline: none;
+}
+
+.search-container button {
+  padding: 10px 16px;
+  background-color: #FF8040;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+}
+.search-container button:hover {
+  background-color: #b85c2f;
+  transition: all 0.3s ease;
+}
+
 /* PROFIL EVENT */
 .event {
   padding: 50px 0;
