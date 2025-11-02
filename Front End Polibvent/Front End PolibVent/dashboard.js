@@ -46,6 +46,9 @@ document.addEventListener("DOMContentLoaded", () => {
           <label>Lokasi:</label>
           <input type="text" name="location" required><br><br>
 
+          <label>Deskripsi:</label>
+          <textarea name="description" rows="4" required></textarea><br><br>
+          
           <label>Status:</label>
           <input type="text" name="status"><br><br>
 
@@ -74,13 +77,15 @@ document.addEventListener("DOMContentLoaded", () => {
       if (index !== -1) {
         events[index] = {
           ...events[index],
-          title: formEdit.title.value,
+          id: formEdit.idEvent.value,
+          titleEvent: formEdit.title.value,
           poster: formEdit.poster.value,
-          dateStart: formEdit.dateStart.value,
-          dateEnd: formEdit.dateEnd.value,
-          timeStart: formEdit.timeStart.value,
-          timeEnd: formEdit.timeEnd.value,
+          startDate: formEdit.dateStart.value,
+          endDate: formEdit.dateEnd.value,
+          startTime: formEdit.timeStart.value,
+          endTime: formEdit.timeEnd.value,
           location: formEdit.location.value,
+          description: formEdit.description.value,
           status: formEdit.status.value
         };
 
@@ -108,9 +113,9 @@ document.addEventListener("DOMContentLoaded", () => {
       row.innerHTML = `
         <td>${index + 1}</td>
         <td><img src="${event.poster || 'no-image.png'}" alt="poster" style="width:80px; border-radius:6px;"></td>
-        <td>${event.title || '-'}</td>
-        <td>${formatDate(event.dateStart)} - ${formatDate(event.dateEnd)}</td>
-        <td>${event.timeStart || '-'} - ${event.timeEnd || '-'}</td>
+        <td>${event.titleEvent || '-'}</td>
+        <td>${formatDate(event.startDate)} - ${formatDate(event.endDate)}</td>
+        <td>${event.startTime || '-'} - ${event.endTime || '-'}</td>
         <td>${event.location || '-'}</td>
         <td>${event.status || '-'}</td>
         <td>
@@ -155,13 +160,14 @@ document.addEventListener("DOMContentLoaded", () => {
   function openEditModal(event) {
     editModal.style.display = "flex";
     formEdit.idEvent.value = event.id;
-    formEdit.title.value = event.title || "";
+    formEdit.title.value = event.titleEvent || "";
     formEdit.poster.value = event.poster || "";
-    formEdit.dateStart.value = event.dateStart || "";
-    formEdit.dateEnd.value = event.dateEnd || "";
-    formEdit.timeStart.value = event.timeStart || "";
-    formEdit.timeEnd.value = event.timeEnd || "";
+    formEdit.dateStart.value = event.startDate || "";
+    formEdit.dateEnd.value = event.endDate || "";
+    formEdit.timeStart.value = event.startTime || "";
+    formEdit.timeEnd.value = event.endTime || "";
     formEdit.location.value = event.location || "";
+    formEdit.description.value = event.description || "";
     formEdit.status.value = event.status || "";
   }
 
