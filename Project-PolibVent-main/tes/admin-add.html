@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tambah Event — Panel Admin</title>
+  <style>
+    :root{--bg:#f7fafc;--card:#fff;--muted:#6b7280;--accent:#0369a1;--danger:#dc2626}
+    *{box-sizing:border-box}
+    body{font-family:Inter,system-ui,sans-serif;background:var(--bg);margin:0;color:#0f172a}
+    .container{max-width:920px;margin:36px auto;padding:20px}
+    .card{background:var(--card);border-radius:12px;padding:20px;box-shadow:0 6px 18px rgba(2,6,23,0.08)}
+    h1{margin:0 0 8px;font-size:20px}
+    p.lead{margin:0 0 20px;color:var(--muted)}
+    form .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    label{display:block;font-size:13px;margin-bottom:6px}
+    input, select, textarea{width:100%;padding:10px;border:1px solid #e6e9ee;border-radius:8px;font-size:14px}
+    .full{grid-column:1/-1}
+    .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+    button.primary{background:var(--accent);color:white;padding:10px 14px;border-radius:10px;border:0;font-weight:600;cursor:pointer}
+    button.ghost{background:transparent;border:1px solid #e6e9ee;padding:10px 12px;border-radius:10px;cursor:pointer}
+    .note{font-size:13px;color:var(--muted)}
+    .error{color:var(--danger);font-size:13px;margin-top:6px}
+    .poster-preview{width:100px;height:100px;object-fit:cover;border:1px solid #e6e9ee;border-radius:8px}
+    @media (max-width:640px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Tambah Event</h1>
+      <p class="lead">Isi data acara baru di bawah ini.</p>
+
+      <form id="eventForm" novalidate>
+        <div class="grid">
+          <div class="full">
+            <label for="titleEvent">Judul Acara *</label>
+            <input id="titleEvent" name="titleEvent" type="text" required placeholder="Contoh: Seminar Teknologi 2025" />
+            <div class="error" data-for="titleEvent"></div>
+          </div>
+
+          <div>
+            <label for="dateEvent">Tanggal *</label>
+            <input id="dateEvent" name="dateEvent" type="date" required />
+            <div class="error" data-for="dateEvent"></div>
+          </div>
+
+          <div>
+            <label for="timeEvent">Waktu *</label>
+            <input id="timeEvent" name="timeEvent" type="time" required />
+            <div class="error" data-for="timeEvent"></div>
+          </div>
+
+          <div class="full">
+            <label for="location">Lokasi *</label>
+            <input id="location" name="location" type="text" required placeholder="Contoh: Aula Gedung A, Kampus X" />
+            <div class="error" data-for="location"></div>
+          </div>
+
+          <div class="full">
+            <label for="description">Deskripsi *</label>
+            <textarea id="description" name="description" rows="4" required placeholder="Tuliskan deskripsi acara di sini..."></textarea>
+            <div class="error" data-for="description"></div>
+          </div>
+
+          <div>
+            <label for="poster">Poster / Banner (opsional)</label>
+            <div style="display:flex;gap:12px;align-items:center">
+              <input id="poster" name="poster" type="file" accept="image/*" />
+              <img id="posterPreview" class="poster-preview"
+                src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100%' height='100%' fill='%23eef2ff'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%2303496a' font-size='11'>Preview</text></svg>"
+                alt="Pratinjau poster">
+            </div>
+            <div class="note">Maks 2MB, format JPG/PNG.</div>
+            <div class="error" data-for="poster"></div>
+          </div>
+
+          <div>
+            <label for="status">Status</label>
+            <select id="status" name="status">
+              <option value="active">Aktif</option>
+              <option value="inactive">Non-aktif</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="ghost" id="cancelBtn">Batal</button>
+          <button type="submit" class="primary">Tambah Event</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const form = document.getElementById('eventForm');
+      const posterInput = document.getElementById('poster');
+      const posterPreview = document.getElementById('posterPreview');
+      const cancelBtn = document.getElementById('cancelBtn');
+
+      function setError(name, msg){
+        const el = document.querySelector(`.error[data-for="${name}"]`);
+        if(el) el.textContent = msg || '';
+      }
+
+      function validate(){
+        let ok = true;
+        const required = ['titleEvent','dateEvent','timeEvent','location','description'];
+        required.forEach(id=>{
+          const field = form[id];
+          setError(id,'');
+          if(!field.value.trim()){ setError(id,'Wajib diisi'); ok=false; }
+        });
+
+        const file = posterInput.files[0];
+        setError('poster','');
+        if(file){
+          if(file.size > 2*1024*1024){ setError('poster','Ukuran file maksimal 2MB'); ok=false; }
+          if(!/^image\//.test(file.type)){ setError('poster','File bukan gambar'); ok=false; }
+        }
+        return ok;
+      }
+
+      posterInput.addEventListener('change', e=>{
+        const file = e.target.files[0];
+        if(!file) return;
+        if(!/^image\//.test(file.type)){ setError('poster','File bukan gambar'); return; }
+        if(file.size > 2*1024*1024){ setError('poster','Ukuran file maksimal 2MB'); return; }
+        setError('poster','');
+        const reader = new FileReader();
+        reader.onload = ev => posterPreview.src = ev.target.result;
+        reader.readAsDataURL(file);
+      });
+
+      cancelBtn.addEventListener('click', ()=> window.location.href = "admin-events.html");
+
+      form.addEventListener('submit', ev=>{
+        ev.preventDefault();
+        if(!validate()) return;
+
+        const file = posterInput.files[0];
+        const reader = new FileReader();
+
+        reader.onloadend = () => {
+          const newEvent = {
+            id: Date.now(),
+            title: form.titleEvent.value,
+            date: form.dateEvent.value,
+            time: form.timeEvent.value,
+            location: form.location.value,
+            description: form.description.value,
+            status: form.status.value,
+            poster: file ? reader.result : null
+          };
+
+          const existing = JSON.parse(localStorage.getItem('events')) || [];
+          existing.push(newEvent);
+          localStorage.setItem('events', JSON.stringify(existing));
+
+          alert("Event berhasil ditambahkan!");
+          window.location.href = "admin-events.html";
+        };
+
+        if (file) reader.readAsDataURL(file);
+        else reader.onloadend();
+      });
+    })();
+  </script>
+</body>
+</html>
