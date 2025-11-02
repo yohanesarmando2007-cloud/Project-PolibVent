@@ -77,10 +77,11 @@ input {
   color: black;
   font-weight: bold;
   text-decoration: none;
-  padding: 5px 0 5px 0;
+  padding: 7px 0 7px 0;
   background-color: #E9E9E9;
   border: none;
   border-radius: 10px;
+  font-size: large;
 
 }
 

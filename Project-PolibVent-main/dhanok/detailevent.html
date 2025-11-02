@@ -3,57 +3,70 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <!--Font Open Sans-->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
   <title>Detail Event Kampus</title>
   <link rel="stylesheet" href="detailevent.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
   <!-- Header -->
   <header class="header">
-    <div class="logo"><img src="picture/logo event.png" alt=""></div>
+    <div class="logo"><img src="picture/logo event.png" alt="Logo Event"></div>
     <a href="admin.html" class="btn-home">Beranda</a>
     <a href="index.html" class="btn-keluar">Keluar</a>
-
   </header>
 
-   <!-- Konten Utama -->
+  <!-- Konten Utama -->
   <main class="container">
     <section class="info-event">
-      <div class="thumbnail">
-        <div class="box"></div>
-        <div class="box"></div>
-        <div class="box"></div>
-        <div class="box"></div>
-      </div>
+      <h1 id="eventTitle">Judul Acara</h1>
 
-      <h1>Festival</h1>
+      <p><strong>Tanggal</strong><br>
+        <span id="eventDate">12/12/2025 - 01/01/2026</span>
+      </p>
 
-      <p><strong>Tanggal</strong><br><span>12/12/2025 - 01/01/2026</span></p>
+      <p><strong>Waktu</strong><br>
+        <span id="eventTime">08:00 - 16:00</span>
+      </p>
 
-      <p><strong>Penyelenggara</strong><br><span>Antony</span></p>
+      <p><strong>Lokasi</strong><br>
+        <span id="eventLocation">Aula Gedung A, Kampus X</span>
+      </p>
 
-      <p><strong>Link Event</strong><br><a href="#">URL Event</a></p>
+      <p><strong>Status</strong><br>
+        <span id="eventStatus">Aktif</span>
+      </p>
 
-      <p><strong>Keterangan Event</strong><br>
-      Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-      Lorem Ipsum has been the industry's standard dummy text ever since the
-      1500s, when an unknown printer took a galley of type and scrambled it to
-      make a type specimen book. It has survived not only five centuries, but
-      also the leap into electronic typesetting, remaining essentially unchanged.
-      It was popularised in the 1960s with the release of Letraset sheets containing
-      Lorem Ipsum passages, and more recently with desktop publishing software
-      like Aldus PageMaker including versions of Lorem Ipsum.</p>
+      <p><strong>Deskripsi</strong><br>
+        <span id="eventDescription">
+          Lorem Ipsum is simply dummy text of the printing and typesetting industry...
+        </span>
+      </p>
     </section>
 
     <aside class="poster-container">
-      <!-- Ganti src dengan link/poster gambar -->
-      <img src="picture/festival2.jpg" alt="Poster Event" class="poster-img">
+      <img id="eventPoster" src="picture/default.jpg" alt="Poster Event" class="poster-img">
     </aside>
   </main>
+
+  <script>
+    // Ambil data dari localStorage berdasarkan ID yang dipilih
+    const events = JSON.parse(localStorage.getItem("events")) || [];
+    const selectedId = parseInt(localStorage.getItem("selectedEventId"));
+    const event = events.find(e => e.id === selectedId);
+
+    if (event) {
+      document.getElementById("eventTitle").textContent = event.titleEvent;
+      document.getElementById("eventDate").textContent = `${event.startDate} - ${event.endDate}`;
+      document.getElementById("eventTime").textContent = `${event.startTime} - ${event.endTime}`;
+      document.getElementById("eventLocation").textContent = event.location;
+      document.getElementById("eventStatus").textContent = event.status;
+      document.getElementById("eventDescription").textContent = event.description;
+      document.getElementById("eventPoster").src = event.poster || "picture/default.jpg";
+    }
+  </script>
 
 </body>
 </html>

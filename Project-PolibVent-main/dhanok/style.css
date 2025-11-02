@@ -216,7 +216,14 @@ header {
 }
 
 /* Tombol Detail */
-.event .box-event .box a button {
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-detail {
   width: 100px;
   height: 30px;
   border: none;
@@ -228,9 +235,26 @@ header {
   transition: all 0.3s ease;
 }
 
-.event .box-event .box a button:hover {
-  background-color: #000f63;
+.btn-detail:hover {
+  background-color: #001796;
 }
+
+.btn-hapus {
+  width: 100px;
+  height: 30px;
+  border: none;
+  background-color: #c00;
+  color: white;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-hapus:hover {
+  background-color: #900;
+}
+
 
 /* RESPONSIVE */
 @media screen and (max-width: 990px) {
@@ -243,8 +267,8 @@ header {
     position: absolute;
     flex-direction: column;
     width: 100%;
-    height: 100px;
-    row-gap: 20px;
+    height: 160px;
+    row-gap: 32px;
     justify-content: center;
     align-items: center;
     top: 70px;
@@ -256,7 +280,7 @@ header {
   }
 
   .navbar .box-navbar .menu.menu-active {
-    top: 80px;
+    top: px;
     opacity: 1;
     border-top: 1px solid white;
   }

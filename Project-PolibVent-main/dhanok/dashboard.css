@@ -40,9 +40,12 @@ nav ul li a {
 }
 
 nav ul li .out-btn {
-  background: #f97316;
+  background-color: #f97316;
   padding: 8px 16px;
   border-radius: 8px;
+}
+nav ul li .out-btn:hover {
+  background-color: #bc5913;
 }
 
 .container {
@@ -121,4 +124,40 @@ td img {
   border-radius: 6px;
   padding: 6px 12px;
   cursor: pointer;
+}
+@media screen and (max-width: 990px) {
+  header .logo img {
+    width: 110px;
+    height: 20%;
+  }
+  table, thead, tbody, th, td, tr {
+    display: block;
+    width: 100%;
+  }
+
+  thead {
+    display: none; /* sembunyikan header */
+  }
+
+  tr {
+    margin-bottom: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    background: #fff;
+  }
+
+  td {
+    text-align: left;
+    padding: 8px;
+    position: relative;
+  }
+
+  td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    display: block;
+    margin-bottom: 6px;
+    color: #64748b;
+  }
 }

@@ -213,21 +213,23 @@
   }
   
   /* Tombol Detail */
-  .event .box-event .box a button {
-    width: 100px;
-    height: 30px;
-    border: none;
-    background-color: #001BB7;
-    color: white;
-    font-weight: bold;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  
-  .event .box-event .box a button:hover {
-    background-color: #001796;
-  }
+.event .box-event .box button {
+  width: 100px;
+  height: 30px;
+  border: none;
+  background-color: #001BB7;
+  color: white;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.event .box-event .box button:hover {
+  background-color: #001796;
+}
+
   
   /* RESPONSIVE */
   @media screen and (max-width: 990px) {

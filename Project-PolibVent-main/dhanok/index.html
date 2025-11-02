@@ -59,48 +59,37 @@
                 <input type="text" id="searchInput" placeholder="Cari event...">
                 <button onclick="searchEvent()"><i class="fas fa-search"></i></button>
         </div>
-        <div class="box-event">
-            <div class="box">
-                <img src="picture/festival2.jpg" alt="">
-                <h3>Festival</h3>
-                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</p>
-                <a href="detaileventm.html"><button>Detail</button></a>
+<div class="box-event" id="eventContainer">
             </div>
-            <div class="box">
-                <img src="picture/konser (2).jpg" alt="">
-                <h3>Konser</h3>
-                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</p>
-                <a href="detaileventm.html"><button>Detail</button></a>
-            </div>
-            <div class="box">
-                <img src="picture/conference.jpg" alt="">
-                <h3>Conference</h3>
-                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</p>
-                <a href="detaileventm.html"><button>Detail</button></a>
-            </div>
-            <div class="box">
-                <img src="picture/amal.jpg" alt="">
-                <h3>Amal</h3>
-                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</p>
-                <a href="detaileventm.html"><button>Detail</button></a>
-            </div>
-            <div class="box">
-                <img src="picture/seminar.jpg" alt="">
-                <h3>Seminar</h3>
-                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</p>
-                <a href="detaileventm.html"><button>Detail</button></a>
-            </div>
-            <div class="box">
-                <img src="picture/pelatihan.jpg" alt="">
-                <h3>Workshop</h3>
-                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</p>
-                <a href="detaileventm.html"><button>Detail</button></a>
-            </div>
+        </div>
+    </div>
         </div>
     </div>
 </div>
 
 <!--JS-->
-<script src="script.js"></script>
+<script src="script.js">
+  const events = JSON.parse(localStorage.getItem("events")) || [];
+  const container = document.getElementById("eventContainer");
+  container.innerHTML = "";
+
+  events.forEach(event => {
+    const box = document.createElement("div");
+    box.className = "box";
+    box.innerHTML = `
+      <img src="${event.poster || 'picture/default.jpg'}" alt="Poster Event">
+      <h3>${event.titleEvent}</h3>
+      <p>${event.description.substring(0, 100)}...</p>
+      <button onclick="lihatDetail(${event.id})">Detail</button>
+    `;
+    container.appendChild(box);
+  });
+
+  function lihatDetail(id) {
+    localStorage.setItem("selectedEventId", id);
+    window.location.href = "detaileventm.html";
+  }
+
+</script>
 </body>
 </html>

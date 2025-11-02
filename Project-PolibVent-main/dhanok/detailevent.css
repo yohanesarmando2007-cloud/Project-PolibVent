@@ -129,7 +129,7 @@ body {
   }
   
   /* RESPONSIVE DESIGN */
-  @media screen and (max-width: 900px) {
+  @media screen and (max-width: 990px) {
     .container {
       flex-direction: column;
       padding: 30px 20px;
@@ -153,8 +153,18 @@ body {
     }
   
     .btn-keluar {
-      padding: 8px 20px;
-      font-size: 14px;
+      padding: 8px 10px;
+      font-size: 8px;
     }
+    .btn-home {
+      padding: 8px 10px;
+      font-size: 8px;
+      margin-right: 5px;
+    }
+    .logo img {
+      width: 120px;
+      height: 20%;
+    }
+
   }
   

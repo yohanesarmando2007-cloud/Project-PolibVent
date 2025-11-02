@@ -19,13 +19,13 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const newEvent = {
+    const event = {
       id: Date.now(),
-      title: document.getElementById("titleEvent").value,
-      dateStart: document.getElementById("startDate").value,
-      dateEnd: document.getElementById("endDate").value,
-      timeStart: document.getElementById("startTime").value,
-      timeEnd: document.getElementById("endTime").value,
+      titleEvent: document.getElementById("titleEvent").value,
+      startDate: document.getElementById("startDate").value,
+      endDate: document.getElementById("endDate").value,
+      startTime: document.getElementById("startTime").value,
+      endTime: document.getElementById("endTime").value,
       location: document.getElementById("location").value,
       description: document.getElementById("description").value,
       status: document.getElementById("status").value,
@@ -33,11 +33,10 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const events = JSON.parse(localStorage.getItem("events")) || [];
-    events.push(newEvent);
+    events.push(event);
     localStorage.setItem("events", JSON.stringify(events));
 
     alert("Event berhasil ditambahkan!");
     window.location.href = "dashboard.html";
-
   });
 });
