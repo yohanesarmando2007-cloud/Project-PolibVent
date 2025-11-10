@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem("adminUser", username);
 
       alert("✅ Login berhasil! Selamat datang, " + username + ".");
-      window.location.href = "admin.html";
+      window.location.href = "dashboard.html";
     } else {
       // Login gagal
       alert("❌ Nama pengguna atau kata sandi salah!");
