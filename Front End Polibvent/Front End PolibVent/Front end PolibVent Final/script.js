@@ -35,9 +35,17 @@ document.addEventListener("DOMContentLoaded", () => {
     eventBoxes.forEach((box) => {
       const title = box.querySelector("h3").textContent.toLowerCase();
       const description = box.querySelector("p").textContent.toLowerCase();
-      box.style.display = title.includes(input) || description.includes(input) ? "block" : "none";
+      const dateText = box.querySelector("p:nth-of-type(2)").textContent.toLowerCase(); 
+      // ambil <p> kedua (tanggal)
+
+      box.style.display =
+        title.includes(input) ||
+        dateText.includes(input)
+          ? "block"
+          : "none";
     });
   }
+
 
   // Tampilkan event dari localStorage
   const events = JSON.parse(localStorage.getItem("events")) || [];
@@ -47,20 +55,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const isAdmin = window.location.href.includes("admin");
 
-    events.forEach((event) => {
-      const box = document.createElement("div");
-      box.className = "box";
-      box.innerHTML = `
-        <img src="${event.poster || 'picture/default.jpg'}" alt="Poster Event">
-        <h3>${event.titleEvent}</h3>
-        <p>${event.description.substring(0, 100)}...</p>
-        <div class="button-group">
-          <button class="btn-detail" onclick="lihatDetail(${event.id})">Detail</button>
-        </div>
-      `;
+events.forEach((event) => {
+  const box = document.createElement("div");
+  box.className = "box";
 
-      container.appendChild(box);
+  // format tanggal agar lebih rapi
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "-";
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
     });
+  };
+
+  box.innerHTML = `
+    <img src="${event.poster || 'picture/default.jpg'}" alt="Poster Event">
+    <h3>${event.titleEvent}</h3>
+    <p>${event.description.substring(0, 100)}...</p>
+    <p> ${formatDate(event.startDate)} - ${formatDate(event.endDate)}</p>
+    <div class="button-group">
+      <button class="btn-detail" onclick="lihatDetail(${event.id})">Detail</button>
+    </div>
+  `;
+
+  container.appendChild(box);
+});
+
   }
 });
 
