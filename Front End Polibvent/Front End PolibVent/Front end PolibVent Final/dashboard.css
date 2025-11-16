@@ -5,52 +5,57 @@ body {
   padding: 0;
 }
 
-header {
+.navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: #001BB7;
   color: white;
-  padding: 16px 40px;
+  padding: 16px;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
-header .logo {
+.navbar .logo {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-header .logo img {
+.navbar .logo img {
   width: 30%;
   height: 30%;
 }
 
-nav ul {
+.navbar ul {
   display: flex;
   list-style: none;
   gap: 24px;
-  margin: 0;
+  margin-right: 50px;
   padding: 0;
 }
 
-nav ul li a {
+.navbar ul li a {
   text-decoration: none;
   color: white;
   font-weight: 600;
 }
 
-nav ul li .out-btn {
+.navbar ul li .out-btn {
   background-color: #f97316;
   padding: 8px 16px;
   border-radius: 8px;
 }
-nav ul li .out-btn:hover {
+.navbar ul li .out-btn:hover {
   background-color: #bc5913;
 }
 
 .container {
   background: white;
   margin: 40px auto;
+  margin-top: 100px;
   padding: 30px;
   border-radius: 16px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
