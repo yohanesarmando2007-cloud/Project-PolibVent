@@ -5,35 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin - Daftar Event</title>
 
-  <!-- Font -->
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="dashboard.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
+  <link href="dashboard.css" rel="stylesheet" />
 </head>
+
 <body>
   <div class="navbar">
     <div class="logo">
       <img src="picture/logo event.png" alt="Polibvent Logo">
     </div>
-      <ul>
-        <li><a href="#" class="out-btn">Beranda</a></li>
-        <li><a href="index.html" class="out-btn">Keluar</a></li>
-      </ul>
+    <ul>
+      <li><a href="#" class="out-btn">Beranda</a></li>
+      <li><a href="index.html" class="out-btn">Keluar</a></li>
+    </ul>
   </div>
 
   <main class="container">
     <h2>Daftar Event (Admin Mode)</h2>
-      <div class="search">
-        <input type="text" id="searchInput" placeholder="Cari event...">
-        <button onclick="searchEvent()"><i class="fas fa-search"></i></button>
-      </div>
+
+    <div class="search">
+      <input type="text" id="searchInput" placeholder="Cari event...">
+      <button onclick="searchEvent()"><i class="fas fa-search"></i></button>
+    </div>
 
     <div class="actions">
-    <a href="adminadd.html" class="add-btn">+ Tambah Event</a>
+      <a href="adminadd.html" class="add-btn">+ Tambah Event</a>
     </div>
+
     <table>
       <thead>
         <tr>
@@ -44,12 +42,13 @@
           <th>Waktu</th>
           <th>Lokasi</th>
           <th>Status</th>
+          <th>Persetujuan</th>
           <th>Aksi</th>
         </tr>
       </thead>
+
       <tbody id="eventTable"></tbody>
     </table>
-    
   </main>
 
   <script src="dashboard.js"></script>
