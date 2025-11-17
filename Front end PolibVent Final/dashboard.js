@@ -1,3 +1,4 @@
+// Convert file to Base64
 function toBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -7,6 +8,7 @@ function toBase64(file) {
   });
 }
 
+// Initialize when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   const tableBody = document.getElementById("eventTable");
   const searchInput = document.getElementById("searchInput");
@@ -14,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let editModal;
   let formEdit;
 
+  // Create edit modal
   function createEditModal() {
     const modal = document.createElement("div");
     modal.id = "editModal";
@@ -86,10 +89,12 @@ document.addEventListener("DOMContentLoaded", () => {
     editModal = modal;
     formEdit = modal.querySelector("#formEdit");
 
+    // Close modal handler
     modal.querySelector("#closeModal").addEventListener("click", () => {
       modal.style.display = "none";
     });
 
+    // Image preview handler
     formEdit.posterFile.addEventListener("change", () => {
       const file = formEdit.posterFile.files[0];
       if (file) {
@@ -101,6 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
+    // Form submit handler
     formEdit.addEventListener("submit", async (e) => {
       e.preventDefault();
       const id = formEdit.idEvent.value;
@@ -110,10 +116,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (index !== -1) {
         let posterData = events[index].poster;
 
+        // Handle new poster upload
         if (formEdit.posterFile.files[0]) {
           posterData = await toBase64(formEdit.posterFile.files[0]);
         }
 
+        // Update event data
         events[index] = {
           ...events[index],
           id,
@@ -135,9 +143,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Open edit modal with event data
   function openEditModal(eventData) {
     editModal.style.display = "flex";
 
+    // Populate form fields
     formEdit.idEvent.value = eventData.id;
     formEdit.title.value = eventData.titleEvent;
     formEdit.dateStart.value = eventData.startDate;
@@ -146,21 +156,18 @@ document.addEventListener("DOMContentLoaded", () => {
     formEdit.timeEnd.value = eventData.endTime;
     formEdit.location.value = eventData.location;
     formEdit.description.value = eventData.description;
-
-    // Status auto terisi
     formEdit.status.value = eventData.status || "Aktif";
 
-    // Poster preview
+    // Set poster preview
     document.getElementById("previewPoster").src = eventData.poster;
   }
 
+  // Load events to table
   function loadEvents() {
     const events = JSON.parse(localStorage.getItem("events")) || [];
-    const pending = JSON.parse(localStorage.getItem("pendingEvents")) || [];
-
     tableBody.innerHTML = "";
 
-    if (events.length === 0 && pending.length === 0) {
+    if (events.length === 0) {
       tableBody.innerHTML =
         `<tr><td colspan="9" style="text-align:center; color:#777;">Belum ada event</td></tr>`;
       return;
@@ -168,112 +175,51 @@ document.addEventListener("DOMContentLoaded", () => {
 
     events.forEach((event, index) => {
       const row = document.createElement("tr");
+
+      let approveUI = "";
+
+      // UI untuk kolom persetujuan
+      if (event.approval === "Disetujui") {
+        approveUI = `<span style="color:green;">✔ Disetujui</span>`;
+      } else if (event.approval === "Ditolak") {
+        approveUI = `<span style="color:red;">✖ Ditolak</span>`;
+      } else {
+        approveUI = `
+          <button class="btn-approve" data-id="${event.id}" style="background:green;color:white;">Setujui</button>
+          <button class="btn-reject" data-id="${event.id}" style="background:red;color:white;">Tolak</button>
+        `;
+      }
+
       row.innerHTML = `
-  <td>${index + 1}</td>
-  <td><img src="${event.poster}" style="width:80px; border-radius:6px;"></td>
-  <td>${event.titleEvent}</td>
-  <td>${formatDate(event.startDate)} - ${formatDate(event.endDate)}</td>
-  <td>${event.startTime} - ${event.endTime}</td>
-  <td>${event.location}</td>
-
-  <!-- STATUS sebenarnya -->
-  <td>
-    <span style="color:${event.status === "Aktif" ? "green" : "red"};">
-      ${event.status}
-    </span>
-  </td>
-
-  <!-- PERSETUJUAN sebenarnya -->
-  <td><span style="color:green;">Disetujui</span></td>
-
-  <td>
-    <button class="btn-edit" data-id="${event.id}">Edit</button>
-    <button class="btn-delete" data-id="${event.id}">Hapus</button>
-  </td>
-`;
-
-      tableBody.appendChild(row);
-    });
-
-    pending.forEach((event, index) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>Pending-${event.id}</td>
+        <td>${index + 1}</td>
         <td><img src="${event.poster}" style="width:80px; border-radius:6px;"></td>
         <td>${event.titleEvent}</td>
         <td>${formatDate(event.startDate)} - ${formatDate(event.endDate)}</td>
         <td>${event.startTime} - ${event.endTime}</td>
         <td>${event.location}</td>
-        <td><span style="color:orange;">Menunggu Persetujuan</span></td>
+
+        <!-- STATUS (Aktif / Nonaktif) -->
         <td>
-            <button onclick="approveEvent(${event.id})" style="background:green;color:white;">Setujui</button>
-            <button onclick="rejectEvent(${event.id})" style="background:red;color:white;">Tolak</button>
+          <span style="color:${event.status === "Aktif" ? "green" : "red"};">
+            ${event.status}
+          </span>
         </td>
-        <td>-</td>
+
+        <!-- PERSETUJUAN -->
+        <td>${approveUI}</td>
+
+        <!-- Aksi -->
+        <td>
+          <button class="btn-edit" data-id="${event.id}">Edit</button>
+          <button class="btn-delete" data-id="${event.id}">Hapus</button>
+        </td>
       `;
+
       tableBody.appendChild(row);
     });
   }
 
-window.approveEvent = (id) => {
-    const pending = JSON.parse(localStorage.getItem("pendingEvents")) || [];
-    let events = JSON.parse(localStorage.getItem("events")) || [];
-
-    const ev = pending.find(e => e.id == id);
-    if (!ev) return;
-
-    ev.status = "Aktif";
-
-    events.push(ev);
-    localStorage.setItem("events", JSON.stringify(events));
-
-    const newPending = pending.filter(e => e.id != id);
-    localStorage.setItem("pendingEvents", JSON.stringify(newPending));
-
-    alert("Event disetujui! Status berubah menjadi Aktif.");
-    loadEvents();
-};
-
-
-window.rejectEvent = (id) => {
-    let pending = JSON.parse(localStorage.getItem("pendingEvents")) || [];
-    let events = JSON.parse(localStorage.getItem("events")) || [];
-
-    const ev = pending.find(e => e.id == id);
-    if (ev) {
-        ev.status = "Nonaktif";
-
-        events.push(ev);
-        localStorage.setItem("events", JSON.stringify(events));
-    }
-
-    pending = pending.filter(e => e.id != id);
-    localStorage.setItem("pendingEvents", JSON.stringify(pending));
-
-    alert("Event ditolak! Status berubah menjadi Nonaktif.");
-    loadEvents();
-};
-
-
-  tableBody.addEventListener("click", (e) => {
-    if (e.target.classList.contains("btn-delete")) {
-      const id = e.target.dataset.id;
-      if (confirm("Yakin ingin menghapus event?")) {
-        let events = JSON.parse(localStorage.getItem("events")) || [];
-        events = events.filter(ev => ev.id != id);
-        localStorage.setItem("events", JSON.stringify(events));
-        loadEvents();
-      }
-    }
-
-    if (e.target.classList.contains("btn-edit")) {
-      const id = e.target.dataset.id;
-      const events = JSON.parse(localStorage.getItem("events")) || [];
-      const event = events.find(ev => ev.id == id);
-      if (event) openEditModal(event);
-    }
-  });
-
+  // Format date to DD/MM/YYYY
   function formatDate(dateStr) {
     if (!dateStr) return "-";
     const date = new Date(dateStr);
@@ -282,6 +228,7 @@ window.rejectEvent = (id) => {
     ).padStart(2, "0")}/${date.getFullYear()}`;
   }
 
+  // Search events
   function searchEvent() {
     const keyword = searchInput.value.toLowerCase();
     const rows = document.querySelectorAll("#eventTable tr");
@@ -292,10 +239,79 @@ window.rejectEvent = (id) => {
     });
   }
 
+  // Table event delegation
+  tableBody.addEventListener("click", (e) => {
+    // DELETE event
+    if (e.target.classList.contains("btn-delete")) {
+      const id = e.target.dataset.id;
+      if (confirm("Yakin ingin menghapus event?")) {
+        let events = JSON.parse(localStorage.getItem("events")) || [];
+        events = events.filter(ev => ev.id != id);
+        localStorage.setItem("events", JSON.stringify(events));
+        loadEvents();
+      }
+    }
+
+    // EDIT event
+    if (e.target.classList.contains("btn-edit")) {
+      const id = e.target.dataset.id;
+      const events = JSON.parse(localStorage.getItem("events")) || [];
+      const event = events.find(ev => ev.id == id);
+      if (event) openEditModal(event);
+    }
+
+    // APPROVE event
+    if (e.target.classList.contains("btn-approve")) {
+      const id = e.target.dataset.id;
+      let events = JSON.parse(localStorage.getItem("events")) || [];
+
+      const event = events.find(ev => ev.id == id);
+      if (event) {
+        event.approval = "Disetujui";
+        localStorage.setItem("events", JSON.stringify(events));
+        loadEvents();
+      }
+    }
+
+    // REJECT event
+    if (e.target.classList.contains("btn-reject")) {
+      const id = e.target.dataset.id;
+      let events = JSON.parse(localStorage.getItem("events")) || [];
+
+      const event = events.find(ev => ev.id == id);
+      if (event) {
+        event.approval = "Ditolak";
+        localStorage.setItem("events", JSON.stringify(events));
+        loadEvents();
+      }
+    }
+  });
+
+  // Search input event listener
   if (searchInput) {
     searchInput.addEventListener("input", searchEvent);
   }
 
+  // Initialize
   createEditModal();
   loadEvents();
 });
+
+// Function to create new event (for reference)
+function createNewEvent() {
+  const newEvent = {
+    id: Date.now(),
+    titleEvent: "Judul Event",
+    poster: "data:image/png;base64,...",
+    startDate: "2024-01-01",
+    endDate: "2024-01-02",
+    startTime: "10:00",
+    endTime: "17:00",
+    location: "Lokasi Event",
+    description: "Deskripsi event",
+    status: "Aktif",
+    approval: "Menunggu"  // Important: Initial approval status
+  };
+  
+  return newEvent;
+}
