@@ -214,3 +214,30 @@ document.addEventListener("DOMContentLoaded", () => {
   createEditModal();
   loadEvents();
 });
+
+// Script untuk buka/tutup modal Tambah Event
+const modal = document.getElementById("eventModal");
+const openBtn = document.getElementById("openModal");
+const closeBtn = document.getElementById("closeModal");
+const closeModalBtn = document.getElementById("closeModalBtn");
+
+openBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  modal.style.display = "block";
+});
+
+closeBtn.addEventListener("click", () => {
+  modal.style.display = "none";
+});
+
+closeModalBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  modal.style.display = "none";
+});
+
+window.addEventListener("click", (e) => {
+  if (e.target === modal) {
+    modal.style.display = "none";
+  }
+});
+
