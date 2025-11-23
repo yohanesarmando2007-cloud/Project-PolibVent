@@ -256,7 +256,128 @@ footer p {
   margin: 0;
   letter-spacing: 0.5px;
 }
-  
+
+/* MODAL PolibVent */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 200;
+  backdrop-filter: blur(2px);
+  padding: 40px 20px;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+  max-width: 680px;
+  margin: auto;
+  padding: 28px;
+  animation: modalFade 250ms ease-out;
+  border: 1px solid #e2e8f0;
+}
+
+@keyframes modalFade {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.modal-content h3 {
+  color: #001BB7;
+  margin: 0 0 10px;
+}
+
+.close {
+  float: right;
+  font-size: 26px;
+  cursor: pointer;
+  color: #64748b;
+  transition: color 0.2s ease;
+}
+.close:hover { color: #dc2626; }
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #0f172a;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 14px;
+  background: #ffffff;
+}
+
+.form-group textarea { min-height: 110px; resize: vertical; }
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.btn-submit {
+  background: #001BB7;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.btn-submit:hover { background: #001796; }
+
+.btn-cancel {
+  background: #e2e8f0;
+  color: #111827;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.btn-cancel:hover { background: #cbd5e1; }
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 200;
+  backdrop-filter: blur(2px);
+  overflow-y: auto;   /* biar bisa scroll */
+  padding: 40px 20px;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+  max-width: 680px;
+  margin: auto;
+  padding: 28px;
+  max-height: 90vh;   /* batasi tinggi */
+  overflow-y: auto;   /* isi modal bisa scroll */
+}
+
   /* RESPONSIVE */
   @media screen and (max-width: 990px) {
     .menu-bar {

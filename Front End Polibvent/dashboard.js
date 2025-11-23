@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let editModal;
   let formEdit;
 
+  // Buat modal edit dinamis
   function createEditModal() {
     const modal = document.createElement("div");
     modal.id = "editModal";
@@ -91,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       const id = formEdit.idEvent.value;
       let events = JSON.parse(localStorage.getItem("events")) || [];
-      const index = events.findIndex(ev => ev.id == id);
+      const index = events.findIndex(ev => String(ev.id) === String(id));
 
       if (index !== -1) {
         const fileInput = formEdit.posterFile;
@@ -122,28 +123,33 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Render tabel event
   function loadEvents() {
     const events = JSON.parse(localStorage.getItem("events")) || [];
     tableBody.innerHTML = "";
 
     if (events.length === 0) {
-      tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#777;">Belum ada event</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#777;">Belum ada event</td></tr>`;
       return;
     }
 
     events.forEach((event, index) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${index + 1}</td>
-        <td><img src="${event.poster || 'no-image.png'}" alt="poster" style="width:80px; border-radius:6px;"></td>
-        <td>${event.titleEvent || '-'}</td>
-        <td>${formatDate(event.startDate)} - ${formatDate(event.endDate)}</td>
-        <td>${event.startTime || '-'} - ${event.endTime || '-'}</td>
-        <td>${event.location || '-'}</td>
-        <td>${event.status || '-'}</td>
-        <td>
+        <td data-label="No">${index + 1}</td>
+        <td data-label="Poster"><img src="${event.poster || 'picture/default.jpg'}" alt="poster" style="width:80px; height:80px; object-fit:cover; border-radius:6px;"></td>
+        <td data-label="Judul">${event.titleEvent || '-'}</td>
+        <td data-label="Tanggal">${formatDate(event.startDate)} - ${formatDate(event.endDate)}</td>
+        <td data-label="Waktu">${event.startTime || '-'} - ${event.endTime || '-'}</td>
+        <td data-label="Lokasi">${event.location || '-'}</td>
+        <td data-label="Status">${event.status || '-'}</td>
+        <td data-label="Aksi">
           <button class="btn-edit" data-id="${event.id}">Edit</button>
           <button class="btn-delete" data-id="${event.id}">Hapus</button>
+        </td>
+        <td data-label="Persetujuan">
+          <button class="btn-approve" data-id="${event.id}">Setujui</button>
+          <button class="btn-reject" data-id="${event.id}">Tolak</button>
         </td>
       `;
       tableBody.appendChild(row);
@@ -157,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function searchEvent() {
-    const keyword = searchInput.value.toLowerCase();
+    const keyword = (searchInput?.value || "").toLowerCase();
     const rows = document.querySelectorAll("#eventTable tr");
 
     rows.forEach(row => {
@@ -168,22 +174,54 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  tableBody.addEventListener("click", (e) => {
-    if (e.target.classList.contains("btn-delete")) {
-      const id = e.target.dataset.id;
+  // Delegasi klik untuk hapus, edit, setujui, tolak
+  tableBody.addEventListener("click", async (e) => {
+    const target = e.target;
+    // Hapus
+    if (target.classList.contains("btn-delete")) {
+      const id = target.dataset.id;
       if (confirm("Apakah Anda yakin ingin menghapus event ini?")) {
         let events = JSON.parse(localStorage.getItem("events")) || [];
-        events = events.filter(ev => ev.id != id);
+        events = events.filter(ev => String(ev.id) !== String(id));
         localStorage.setItem("events", JSON.stringify(events));
         loadEvents();
       }
+      return;
     }
 
-    if (e.target.classList.contains("btn-edit")) {
-      const id = e.target.dataset.id;
+    // Edit
+    if (target.classList.contains("btn-edit")) {
+      const id = target.dataset.id;
       const events = JSON.parse(localStorage.getItem("events")) || [];
-      const event = events.find(ev => ev.id == id);
+      const event = events.find(ev => String(ev.id) === String(id));
       if (event) openEditModal(event);
+      return;
+    }
+
+    // Setujui
+    if (target.classList.contains("btn-approve")) {
+      const id = target.dataset.id;
+      const events = JSON.parse(localStorage.getItem("events")) || [];
+      const ev = events.find(ev => String(ev.id) === String(id));
+      if (ev) {
+        ev.status = "Disetujui";
+        localStorage.setItem("events", JSON.stringify(events));
+        loadEvents();
+      }
+      return;
+    }
+
+    // Tolak
+    if (target.classList.contains("btn-reject")) {
+      const id = target.dataset.id;
+      const events = JSON.parse(localStorage.getItem("events")) || [];
+      const ev = events.find(ev => String(ev.id) === String(id));
+      if (ev) {
+        ev.status = "Ditolak";
+        localStorage.setItem("events", JSON.stringify(events));
+        loadEvents();
+      }
+      return;
     }
   });
 
@@ -198,14 +236,14 @@ document.addEventListener("DOMContentLoaded", () => {
     formEdit.location.value = event.location || "";
     formEdit.description.value = event.description || "";
     formEdit.status.value = event.status || "";
-    document.getElementById("previewPoster").src = event.poster || "no-image.png";
+    document.getElementById("previewPoster").src = event.poster || "picture/default.jpg";
   }
 
   if (searchInput) {
     searchInput.addEventListener("input", searchEvent);
-    searchInput.addEventListener("keypress", function (event) {
-      if (event.key === "Enter") {
-        event.preventDefault();
+    searchInput.addEventListener("keypress", function (evt) {
+      if (evt.key === "Enter") {
+        evt.preventDefault();
         searchEvent();
       }
     });
@@ -215,29 +253,31 @@ document.addEventListener("DOMContentLoaded", () => {
   loadEvents();
 });
 
-// Script untuk buka/tutup modal Tambah Event
+// Script popup Tambah Event (kalau kamu pakai modal di dashboard)
 const modal = document.getElementById("eventModal");
 const openBtn = document.getElementById("openModal");
 const closeBtn = document.getElementById("closeModal");
 const closeModalBtn = document.getElementById("closeModalBtn");
 
-openBtn.addEventListener("click", (e) => {
-  e.preventDefault();
-  modal.style.display = "block";
-});
-
-closeBtn.addEventListener("click", () => {
-  modal.style.display = "none";
-});
-
-closeModalBtn.addEventListener("click", (e) => {
-  e.preventDefault();
-  modal.style.display = "none";
-});
-
+if (openBtn && modal) {
+  openBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    modal.style.display = "block";
+  });
+}
+if (closeBtn && modal) {
+  closeBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+}
+if (closeModalBtn && modal) {
+  closeModalBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    modal.style.display = "none";
+  });
+}
 window.addEventListener("click", (e) => {
   if (e.target === modal) {
     modal.style.display = "none";
   }
 });
-

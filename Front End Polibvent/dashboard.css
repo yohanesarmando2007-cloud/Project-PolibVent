@@ -199,6 +199,31 @@ td img {
   background: #b91c1c;
 }
 
+.btn-approve {
+  background: #16a34a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  margin-right: 6px;
+  transition: background-color 0.2s ease;
+}
+.btn-approve:hover { background: #12813c; }
+
+.btn-reject {
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  margin-right: 6px;
+  transition: background-color 0.2s ease;
+}
+.btn-reject:hover { background: #b91c1c; }
+
+
 /* RESPONSIVE */
 @media screen and (max-width: 990px) {
   .navbar .box-navbar {

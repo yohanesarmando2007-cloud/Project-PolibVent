@@ -16,27 +16,28 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Submit form
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
 
-    const event = {
-      id: Date.now(),
-      titleEvent: document.getElementById("titleEvent").value,
-      startDate: document.getElementById("startDate").value,
-      endDate: document.getElementById("endDate").value,
-      startTime: document.getElementById("startTime").value,
-      endTime: document.getElementById("endTime").value,
-      location: document.getElementById("location").value,
-      description: document.getElementById("description").value,
-      status: document.getElementById("status").value,
-      poster: posterPreview.src
-    };
+  const event = {
+    id: Date.now(),
+    titleEvent: document.getElementById("titleEvent").value,
+    startDate: document.getElementById("startDate").value,
+    endDate: document.getElementById("endDate").value,
+    startTime: document.getElementById("startTime").value,
+    endTime: document.getElementById("endTime").value,
+    location: document.getElementById("location").value,
+    description: document.getElementById("description").value,
+    status: "Disetujui", // langsung disetujui
+    poster: posterPreview.src
+  };
 
-    const events = JSON.parse(localStorage.getItem("events")) || [];
-    events.push(event);
-    localStorage.setItem("events", JSON.stringify(events));
+  const events = JSON.parse(localStorage.getItem("events")) || [];
+  events.push(event);
+  localStorage.setItem("events", JSON.stringify(events));
 
-    alert("Event berhasil ditambahkan!");
-    window.location.href = "dashboard.html";
-  });
+  alert("Event berhasil ditambahkan!");
+  window.location.href = "dashboard.html"; // kembali ke dashboard
+});
+
 });
