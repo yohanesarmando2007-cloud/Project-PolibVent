@@ -231,6 +231,31 @@
   background-color: #001796;
 }
 
+/* FOOTER */
+footer {
+  margin-top: 60px;
+  padding: 25px 20px;
+  text-align: center;
+  background: #001BB7;   /* biru utama */
+  color: white;
+  font-size: 0.95rem;
+  position: relative;
+}
+
+footer::before {
+  content: "";
+  display: block;
+  width: 80%;
+  height: 2px;
+  background-color: #FF8040; /* aksen orange */
+  margin: 0 auto 15px;
+  border-radius: 2px;
+}
+
+footer p {
+  margin: 0;
+  letter-spacing: 0.5px;
+}
   
   /* RESPONSIVE */
   @media screen and (max-width: 990px) {
