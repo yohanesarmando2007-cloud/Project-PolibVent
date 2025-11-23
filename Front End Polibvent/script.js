@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Menu toggle
+  // --- Navbar toggle & scroll effect ---
   const menuBar = document.querySelector(".menu-bar");
   const menuNav = document.querySelector(".menu");
   if (menuBar && menuNav) {
@@ -7,234 +7,58 @@ document.addEventListener("DOMContentLoaded", () => {
       menuNav.classList.toggle("menu-active");
     });
   }
-
-  // Scroll navbar effect
   const navBar = document.querySelector(".navbar");
   if (navBar) {
     window.addEventListener("scroll", () => {
-      const windowPosition = window.scrollY > 0;
-      navBar.classList.toggle("scrolling-active", windowPosition);
+      navBar.classList.toggle("scrolling-active", window.scrollY > 0);
     });
   }
 
-  // Search event
+  // --- Search event ---
   const searchInput = document.getElementById("searchInput");
   if (searchInput) {
     searchInput.addEventListener("input", searchEvent);
-    searchInput.addEventListener("keypress", function (event) {
+    searchInput.addEventListener("keypress", (event) => {
       if (event.key === "Enter") {
         event.preventDefault();
         searchEvent();
       }
     });
   }
-
   function searchEvent() {
     const input = searchInput.value.toLowerCase();
     const eventBoxes = document.querySelectorAll(".box-event .box");
     eventBoxes.forEach((box) => {
       const title = box.querySelector("h3").textContent.toLowerCase();
       const description = box.querySelector("p").textContent.toLowerCase();
-      const dateText = box.querySelector("p:nth-of-type(2)").textContent.toLowerCase(); 
-      // ambil <p> kedua (tanggal)
-
       box.style.display =
-        title.includes(input) ||
-        dateText.includes(input)
-          ? "block"
-          : "none";
+        title.includes(input) || description.includes(input) ? "block" : "none";
     });
   }
 
-
-
-  // Tampilkan event dari localStorage
-  const events = JSON.parse(localStorage.getItem("events")) || [];
-  const container = document.getElementById("eventContainer");
-  if (container) {
-    container.innerHTML = "";
-
-    const isAdmin = window.location.href.includes("admin");
-
-events.forEach((event) => {
-  const box = document.createElement("div");
-  box.className = "box";
-
-  // format tanggal agar lebih rapi
-  const formatDate = (dateStr) => {
-    if (!dateStr) return "-";
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("id-ID", {
-      day: "numeric",
-      month: "long",
-      year: "numeric"
-    });
-  };
-
-  box.innerHTML = `
-    <img src="${event.poster || 'picture/default.jpg'}" alt="Poster Event">
-    <h3>${event.titleEvent}</h3>
-    <p>${event.description.substring(0, 100)}...</p>
-    <p> ${formatDate(event.startDate)} - ${formatDate(event.endDate)}</p>
-    <div class="button-group">
-      <button class="btn-detail" onclick="lihatDetail(${event.id})">Detail</button>
-    </div>
-  `;
-
-  container.appendChild(box);
-});
-
-  }
-});
-
-// Fungsi global
-function lihatDetail(id) {
-  localStorage.setItem("selectedEventId", id);
-  const isAdmin = window.location.href.includes("admin");
-  window.location.href = isAdmin ? "detailevent.html" : "detaileventm.html";
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-document.addEventListener("DOMContentLoaded", () => {
-  const eventContainer = document.getElementById("eventContainer");
-
-  // fungsi untuk update status aktif/nonaktif otomatis
+  // --- Update status otomatis ---
   function updateEventStatus() {
-  let events = JSON.parse(localStorage.getItem("events")) || [];
-  const now = new Date();
-
-  events.forEach(ev => {
-    if (ev.status === "Disetujui") {
-      const endDateTime = new Date(ev.endDate + "T" + (ev.endTime || "23:59"));
-      ev.status = now > endDateTime ? "Nonaktif" : "Aktif";
-    }
-  });
-
-  localStorage.setItem("events", JSON.stringify(events));
-}
-
-
-  // fungsi render event
-  function renderEvents() {
-  updateEventStatus(); // cek otomatis aktif/nonaktif
-
-  const events = JSON.parse(localStorage.getItem("events")) || [];
-  eventContainer.innerHTML = "";
-
-  events.forEach(ev => {
-    const row = document.createElement("div");
-    row.className = "box";
-    row.innerHTML = `
-      <h3>${ev.titleEvent}</h3>
-      <p>${ev.startDate} - ${ev.endDate}</p>
-      <p>${ev.startTime} - ${ev.endTime}</p>
-      <p>${ev.location}</p>
-      <p>${ev.description}</p>
-      <p>Status: ${ev.status}</p>
-    `;
-
-    // kalau masih menunggu → tampilkan tombol persetujuan
-    if (ev.status === "Menunggu Persetujuan") {
-      row.innerHTML += `
-        <div class="button-group">
-          <button class="btn-approve" data-id="${ev.id}">Setujui</button>
-          <button class="btn-reject" data-id="${ev.id}">Tolak</button>
-        </div>
-      `;
-    }
-
-    eventContainer.appendChild(row);
-  });
-}
-
-  // ⬇️ di sini kamu taruh listener klik
-  eventContainer.addEventListener("click", (e) => {
-  let events = JSON.parse(localStorage.getItem("events")) || [];
-  const id = e.target.dataset.id;
-
-  if (e.target.classList.contains("btn-approve")) {
-    const ev = events.find(ev => String(ev.id) === String(id));
-    if (ev) ev.status = "Disetujui"; // langsung berubah jadi Disetujui
-    localStorage.setItem("events", JSON.stringify(events));
-    renderEvents();
-  }
-
-  if (e.target.classList.contains("btn-reject")) {
-    const ev = events.find(ev => String(ev.id) === String(id));
-    if (ev) ev.status = "Ditolak"; // langsung berubah jadi Ditolak
-    localStorage.setItem("events", JSON.stringify(events));
-    renderEvents();
-  }
-});
-
-  // panggil render pertama kali
-  renderEvents();
-});
-
-
-  // Elements
-  const addEventBtn = document.getElementById("openAddEvent");
-  const modal = document.getElementById("addEventModal");
-  const closeModal = document.getElementById("closeModal");
-  const cancelAddEvent = document.getElementById("cancelAddEvent");
-  const addEventForm = document.getElementById("addEventForm");
-  const posterInput = document.getElementById("poster");
-  const posterPreview = document.getElementById("posterPreview");
-  const eventContainer = document.getElementById("eventContainer");
-
-  // Guard if index doesn’t include modal
-  if (!modal || !addEventForm) return;
-
-  // Open/close modal
-  if (addEventBtn) addEventBtn.onclick = () => modal.style.display = "block";
-  closeModal.onclick = () => modal.style.display = "none";
-  cancelAddEvent.onclick = () => modal.style.display = "none";
-  window.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
-
-  // Poster preview
-  if (posterInput) {
-    posterInput.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        posterPreview.src = reader.result;
-        posterPreview.style.display = "block";
-      };
-      reader.readAsDataURL(file);
+    let events = JSON.parse(localStorage.getItem("events")) || [];
+    const now = new Date();
+    events.forEach(ev => {
+      if (ev.approval === "Disetujui" && ev.status === "Aktif") {
+        const endDateTime = new Date(ev.endDate + "T" + (ev.endTime || "23:59"));
+        if (now > endDateTime) {
+          ev.status = "Nonaktif";
+        }
+      }
     });
+    localStorage.setItem("events", JSON.stringify(events));
   }
 
-  // Save new event
-  addEventForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const events = JSON.parse(localStorage.getItem("events")) || [];
-
-    const event = {
-      id: Date.now(),
-      titleEvent: document.getElementById("titleEvent").value,
-      startDate: document.getElementById("startDate").value,
-      endDate: document.getElementById("endDate").value,
-      startTime: document.getElementById("startTime").value,
-      endTime: document.getElementById("endTime").value,
-      location: document.getElementById("location").value,
-      description: document.getElementById("description").value,
-      status: "Menunggu Persetujuan",
-      poster: posterPreview && posterPreview.style.display === "block" ? posterPreview.src : "picture/default.jpg"
-    };
-
-    events.push(event);
-    localStorage.setItem("events", JSON.stringify(events));
-    modal.style.display = "none";
-    renderPublicEvents();
-  });
-
-  // Render public events: only approved
+  // --- Render event publik (hanya yang disetujui & aktif/nonaktif) ---
   function renderPublicEvents() {
-    if (!eventContainer) return;
+    updateEventStatus();
     const events = JSON.parse(localStorage.getItem("events")) || [];
-    eventContainer.innerHTML = "";
-    events.filter(ev => ev.status === "Disetujui").forEach(ev => {
+    const container = document.getElementById("eventContainer");
+    if (!container) return;
+    container.innerHTML = "";
+    events.filter(ev => ev.approval === "Disetujui").forEach(ev => {
       const box = document.createElement("div");
       box.className = "box";
       box.innerHTML = `
@@ -244,11 +68,12 @@ document.addEventListener("DOMContentLoaded", () => {
         <p>${ev.startTime || '-'} - ${ev.endTime || '-'}</p>
         <p>${ev.location}</p>
         <p>${ev.description}</p>
+        <p>Status: ${ev.status}</p>
         <div class="button-group">
           <button class="btn-detail" onclick="viewDetail(${ev.id})">Detail</button>
         </div>
       `;
-      eventContainer.appendChild(box);
+      container.appendChild(box);
     });
   }
 
@@ -258,32 +83,77 @@ document.addEventListener("DOMContentLoaded", () => {
     return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}`;
   }
 
-  // Navigate to detail (reuses your detail pages)
+  // --- Tambah event baru dari modal ---
+  const addEventForm = document.getElementById("addEventForm");
+  const modal = document.getElementById("addEventModal");
+  const posterInput = document.getElementById("poster");
+  const posterPreview = document.getElementById("posterPreview");
+
+  if (addEventForm) {
+    addEventForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const events = JSON.parse(localStorage.getItem("events")) || [];
+
+      const newEvent = {
+        id: Date.now(),
+        titleEvent: document.getElementById("titleEvent").value,
+        startDate: document.getElementById("startDate").value,
+        endDate: document.getElementById("endDate").value,
+        startTime: document.getElementById("startTime").value,
+        endTime: document.getElementById("endTime").value,
+        location: document.getElementById("location").value,
+        description: document.getElementById("description").value,
+        poster: posterPreview && posterPreview.style.display === "block" ? posterPreview.src : "picture/default.jpg",
+        approval: "Menunggu",   // default persetujuan
+        status: "Nonaktif"      // default status
+      };
+
+      events.push(newEvent);
+      localStorage.setItem("events", JSON.stringify(events));
+      if (modal) modal.style.display = "none";
+      renderPublicEvents();
+    });
+  }
+
+  // --- Navigasi ke detail ---
   window.viewDetail = function(id) {
     localStorage.setItem("selectedEventId", String(id));
-    // Choose whichever detail page you use:
-    window.location.href = "detaileventm.html"; // or "detailevent.html"
+    window.location.href = window.location.href.includes("admin") ? "detailevent.html" : "detaileventm.html";
   };
 
-  // Initial render
+  // --- Initial render ---
   renderPublicEvents();
 });
+document.addEventListener("DOMContentLoaded", () => {
+  const addEventBtn = document.getElementById("openAddEvent");
+  const modal = document.getElementById("addEventModal");
+  const closeModal = document.getElementById("closeModal");
+  const cancelAddEvent = document.getElementById("cancelAddEvent");
 
-function updateEventStatus() {
-  let events = JSON.parse(localStorage.getItem("events")) || [];
-  const now = new Date();
+  // Buka modal
+  if (addEventBtn) {
+    addEventBtn.addEventListener("click", () => {
+      modal.style.display = "block";
+    });
+  }
 
-  events.forEach(ev => {
-    if (ev.status === "Disetujui") {
-      const endDateTime = new Date(ev.endDate + "T" + (ev.endTime || "23:59"));
-      if (now > endDateTime) {
-        ev.status = "Nonaktif";
-      } else {
-        ev.status = "Aktif";
-      }
+  // Tutup modal
+  if (closeModal) {
+    closeModal.addEventListener("click", () => {
+      modal.style.display = "none";
+    });
+  }
+  if (cancelAddEvent) {
+    cancelAddEvent.addEventListener("click", () => {
+      modal.style.display = "none";
+    });
+  }
+
+  // Tutup modal kalau klik di luar konten
+  window.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.style.display = "none";
     }
   });
-
-  localStorage.setItem("events", JSON.stringify(events));
-}
+});
 

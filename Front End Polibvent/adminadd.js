@@ -4,40 +4,43 @@ document.addEventListener("DOMContentLoaded", () => {
   const posterPreview = document.getElementById("posterPreview");
 
   // Preview poster
-  posterInput.addEventListener("change", (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        posterPreview.src = reader.result;
-      };
-      reader.readAsDataURL(file);
-    }
-  });
+  if (posterInput) {
+    posterInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          posterPreview.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
 
   // Submit form
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
 
-  const event = {
-    id: Date.now(),
-    titleEvent: document.getElementById("titleEvent").value,
-    startDate: document.getElementById("startDate").value,
-    endDate: document.getElementById("endDate").value,
-    startTime: document.getElementById("startTime").value,
-    endTime: document.getElementById("endTime").value,
-    location: document.getElementById("location").value,
-    description: document.getElementById("description").value,
-    status: "Disetujui", // langsung disetujui
-    poster: posterPreview.src
-  };
+    const event = {
+      id: Date.now(),
+      titleEvent: document.getElementById("titleEvent").value,
+      startDate: document.getElementById("startDate").value,
+      endDate: document.getElementById("endDate").value,
+      startTime: document.getElementById("startTime").value,
+      endTime: document.getElementById("endTime").value,
+      location: document.getElementById("location").value,
+      description: document.getElementById("description").value,
+      poster: posterPreview.src || "picture/default.jpg",
 
-  const events = JSON.parse(localStorage.getItem("events")) || [];
-  events.push(event);
-  localStorage.setItem("events", JSON.stringify(events));
+      approval: "Disetujui",   // admin langsung menyetujui
+      status: document.getElementById("status").value // Aktif / Nonaktif sesuai pilihan
+    };
 
-  alert("Event berhasil ditambahkan!");
-  window.location.href = "dashboard.html"; // kembali ke dashboard
-});
+    const events = JSON.parse(localStorage.getItem("events")) || [];
+    events.push(event);
+    localStorage.setItem("events", JSON.stringify(events));
 
+    alert("Event berhasil ditambahkan!");
+    window.location.href = "dashboard.html";
+  });
 });
