@@ -146,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        // Form submit handler - UPDATED FOR DATABASE
+        // Form submit handler
         formEdit.addEventListener("submit", async (e) => {
             e.preventDefault();
             const id = formEdit.idEvent.value;
@@ -224,7 +224,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 location: eventData.location,
                 description: eventData.description,
                 status: eventData.status,
-                approval: eventData.approval_status
+                approval: eventData.approval_status,
+                // Keep database fields for compatibility
+                title: eventData.title,
+                start_date: eventData.start_date,
+                end_date: eventData.end_date,
+                start_time: eventData.start_time,
+                end_time: eventData.end_time,
+                poster_url: eventData.poster_url,
+                approval_status: eventData.approval_status
             };
 
             localStorage.setItem("events", JSON.stringify(events));
@@ -234,27 +242,27 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Open edit modal with event data - UPDATED FOR DATABASE
+    // Open edit modal with event data
     function openEditModal(eventData) {
         debugLog(`Opening edit modal for event: ${eventData.id}`);
         editModal.style.display = "flex";
 
         // Populate form fields - handle both database and localStorage structures
         formEdit.idEvent.value = eventData.id;
-        formEdit.title.value = eventData.title || eventData.titleEvent;
-        formEdit.dateStart.value = eventData.start_date || eventData.startDate;
-        formEdit.dateEnd.value = eventData.end_date || eventData.endDate;
-        formEdit.timeStart.value = eventData.start_time || eventData.startTime;
-        formEdit.timeEnd.value = eventData.end_time || eventData.endTime;
-        formEdit.location.value = eventData.location;
-        formEdit.description.value = eventData.description;
+        formEdit.title.value = eventData.title || eventData.titleEvent || "";
+        formEdit.dateStart.value = eventData.start_date || eventData.startDate || "";
+        formEdit.dateEnd.value = eventData.end_date || eventData.endDate || "";
+        formEdit.timeStart.value = eventData.start_time || eventData.startTime || "";
+        formEdit.timeEnd.value = eventData.end_time || eventData.endTime || "";
+        formEdit.location.value = eventData.location || "";
+        formEdit.description.value = eventData.description || "";
         formEdit.status.value = eventData.status || "Aktif";
         formEdit.approval_status.value = eventData.approval_status || eventData.approval || "Menunggu";
 
         // Set poster preview
         const posterSrc = eventData.poster_url || eventData.poster;
         const previewPoster = document.getElementById("previewPoster");
-        if (posterSrc) {
+        if (posterSrc && posterSrc !== "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100%' height='100%' fill='%23eef2ff'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%2303496a' font-size='11'>Preview</text></svg>") {
             previewPoster.src = posterSrc;
             previewPoster.style.display = "block";
         } else {
@@ -262,7 +270,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Load events to table - UPDATED FOR DATABASE
+    // Load events to table - IMPROVED VERSION
     async function loadEvents() {
         debugLog("Loading events for dashboard");
         
@@ -296,7 +304,37 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Display events in table - UPDATED FOR DATABASE
+    // Fallback: Load events from localStorage - IMPROVED VERSION
+    function loadEventsFromLocalStorage() {
+        debugLog("Loading events from localStorage");
+        const events = JSON.parse(localStorage.getItem("events")) || [];
+        
+        // Debug: Tampilkan semua events di console
+        console.log("All events in localStorage:", events);
+        
+        // Filter events yang memiliki struktur yang benar
+        const validEvents = events.filter(event => {
+            const hasTitle = event.title || event.titleEvent;
+            const hasDate = event.start_date || event.startDate;
+            return hasTitle && hasDate;
+        });
+        
+        debugLog("Valid events found", { 
+            total: events.length, 
+            valid: validEvents.length,
+            invalid: events.length - validEvents.length
+        });
+        
+        // Tampilkan events yang invalid untuk debugging
+        const invalidEvents = events.filter(event => !(event.title || event.titleEvent));
+        if (invalidEvents.length > 0) {
+            console.warn("Invalid events found:", invalidEvents);
+        }
+        
+        displayEventsInTable(validEvents);
+    }
+
+    // Display events in table - IMPROVED VERSION
     function displayEventsInTable(events) {
         debugLog(`Displaying ${events?.length || 0} events in table`);
         tableBody.innerHTML = "";
@@ -317,15 +355,15 @@ document.addEventListener("DOMContentLoaded", () => {
             const row = document.createElement("tr");
 
             // Handle both database and localStorage field names
-            const eventTitle = event.title || event.titleEvent;
-            const eventPoster = event.poster_url || event.poster;
+            const eventTitle = event.title || event.titleEvent || "Judul Tidak Ditemukan";
+            const eventPoster = event.poster_url || event.poster || 'https://via.placeholder.com/80x60?text=No+Image';
             const eventStartDate = event.start_date || event.startDate;
             const eventEndDate = event.end_date || event.endDate;
-            const eventStartTime = event.start_time || event.startTime;
-            const eventEndTime = event.end_time || event.endTime;
-            const eventLocation = event.location;
-            const eventStatus = event.status;
-            const eventApproval = event.approval_status || event.approval;
+            const eventStartTime = event.start_time || event.startTime || "00:00";
+            const eventEndTime = event.end_time || event.endTime || "00:00";
+            const eventLocation = event.location || "Lokasi tidak tersedia";
+            const eventStatus = event.status || "Aktif";
+            const eventApproval = event.approval_status || event.approval || "Menunggu";
             const eventId = event.id;
 
             debugLog(`Event ${eventId}`, {
@@ -388,14 +426,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Fallback: Load events from localStorage
-    function loadEventsFromLocalStorage() {
-        debugLog("Loading events from localStorage");
-        const events = JSON.parse(localStorage.getItem("events")) || [];
-        debugLog("LocalStorage events", { count: events.length });
-        displayEventsInTable(events);
-    }
-
     // Format date to DD/MM/YYYY
     function formatDate(dateStr) {
         if (!dateStr) return "-";
@@ -432,7 +462,7 @@ document.addEventListener("DOMContentLoaded", () => {
         debugLog(`Search results: ${visibleCount} events found`);
     }
 
-    // Table event delegation - UPDATED FOR DATABASE
+    // Table event delegation
     tableBody.addEventListener("click", async (e) => {
         // DELETE event
         if (e.target.classList.contains("btn-delete")) {
@@ -493,7 +523,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // APPROVE event - UPDATED FOR DATABASE
+        // APPROVE event
         if (e.target.classList.contains("btn-approve")) {
             const id = e.target.dataset.id;
             debugLog(`Approving event: ${id}`);
@@ -535,7 +565,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // REJECT event - UPDATED FOR DATABASE
+        // REJECT event
         if (e.target.classList.contains("btn-reject")) {
             const id = e.target.dataset.id;
             debugLog(`Rejecting event: ${id}`);
@@ -592,6 +622,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const event = events.find(ev => ev.id == id);
         if (event) {
             event.approval = "Disetujui";
+            event.approval_status = "Disetujui";
             localStorage.setItem("events", JSON.stringify(events));
             loadEvents();
             alert("Event berhasil disetujui (offline mode)!");
@@ -603,6 +634,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const event = events.find(ev => ev.id == id);
         if (event) {
             event.approval = "Ditolak";
+            event.approval_status = "Ditolak";
             localStorage.setItem("events", JSON.stringify(events));
             loadEvents();
             alert("Event berhasil ditolak (offline mode)!");
@@ -632,4 +664,23 @@ function searchEvent() {
         const event = new Event('input');
         searchInput.dispatchEvent(event);
     }
+}
+
+// Debug function untuk cek data
+function checkEventData() {
+    const events = JSON.parse(localStorage.getItem("events")) || [];
+    console.log("=== EVENT DATA DEBUG ===");
+    console.log("Total events:", events.length);
+    
+    events.forEach((event, index) => {
+        console.log(`Event ${index + 1}:`, {
+            id: event.id,
+            title: event.title || event.titleEvent,
+            approval: event.approval_status || event.approval,
+            status: event.status,
+            hasPoster: !!(event.poster_url || event.poster)
+        });
+    });
+    
+    return events;
 }

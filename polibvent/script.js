@@ -139,7 +139,7 @@ async function handleAddEventForm() {
             debugLog("Poster converted to base64", { length: posterData.length });
         } else {
             // Default poster if no image uploaded
-            posterData = "https://via.placeholder.com/300x200?text=Poster+Event";
+            posterData = "https://via.placeholder.com/300x200?text=Event+Poster";
             debugLog("Using default poster");
         }
         
@@ -154,8 +154,7 @@ async function handleAddEventForm() {
             location: formData.get("location"),
             poster_url: posterData,
             status: "Aktif",
-            approval_status: "Menunggu",
-            created_by: 1
+            approval_status: "Menunggu"
         };
 
         debugLog("New event data", newEvent);
@@ -205,17 +204,28 @@ async function handleAddEventForm() {
 
 // Fallback function to save to localStorage if API fails
 function saveToLocalStorage(eventData) {
+    const eventId = Date.now();
     const newEvent = {
-        id: Date.now(),
+        id: eventId,
+        // Database fields
+        title: eventData.title,
+        start_date: eventData.start_date,
+        end_date: eventData.end_date,
+        start_time: eventData.start_time,
+        end_time: eventData.end_time,
+        location: eventData.location,
+        description: eventData.description,
+        status: "Aktif",
+        poster_url: eventData.poster_url,
+        approval_status: "Menunggu",
+        
+        // Compatibility fields
         titleEvent: eventData.title,
-        poster: eventData.poster_url,
         startDate: eventData.start_date,
         endDate: eventData.end_date,
         startTime: eventData.start_time,
         endTime: eventData.end_time,
-        location: eventData.location,
-        description: eventData.description,
-        status: "Aktif",
+        poster: eventData.poster_url,
         approval: "Menunggu"
     };
     
@@ -238,7 +248,7 @@ function saveToLocalStorage(eventData) {
     alert("Event berhasil ditambahkan (offline mode)! Menunggu persetujuan admin.");
 }
 
-// Load events for public view
+// Load events for public view - IMPROVED VERSION
 async function loadEvents() {
     const container = document.getElementById("eventContainer");
     
@@ -268,11 +278,18 @@ async function loadEvents() {
         debugLog("Events loaded from database", { count: events.length });
         
         // Filter only approved and active events for public view
-        const approvedEvents = events.filter(event => 
-            event.approval_status === "Disetujui" && event.status === "Aktif"
-        );
+        // Support both database and localStorage field names
+        const approvedEvents = events.filter(event => {
+            const isApproved = (event.approval_status === "Disetujui") || (event.approval === "Disetujui");
+            const isActive = event.status === "Aktif";
+            return isApproved && isActive;
+        });
         
-        debugLog("Approved events", { count: approvedEvents.length });
+        debugLog("Approved events for public view", { 
+            total: events.length, 
+            approved: approvedEvents.length 
+        });
+        
         displayEvents(approvedEvents);
         
     } catch (error) {
@@ -281,6 +298,31 @@ async function loadEvents() {
         // Fallback to localStorage
         loadEventsFromLocalStorage();
     }
+}
+
+// Fallback to localStorage - IMPROVED VERSION
+function loadEventsFromLocalStorage() {
+    debugLog("Loading events from localStorage");
+    const events = JSON.parse(localStorage.getItem("events")) || [];
+    
+    // Debug: Tampilkan semua events
+    console.log("All localStorage events:", events);
+    
+    // Filter events yang approved dan active - support both field names
+    const approvedEvents = events.filter(event => {
+        const isApproved = (event.approval_status === "Disetujui") || (event.approval === "Disetujui");
+        const isActive = event.status === "Aktif";
+        const hasRequiredFields = (event.title || event.titleEvent) && (event.poster_url || event.poster);
+        
+        return isApproved && isActive && hasRequiredFields;
+    });
+    
+    debugLog("LocalStorage events", { 
+        total: events.length, 
+        approved: approvedEvents.length 
+    });
+    
+    displayEvents(approvedEvents);
 }
 
 // Display events function
@@ -346,15 +388,6 @@ function displayEvents(events) {
         
         container.appendChild(box);
     });
-}
-
-// Fallback to localStorage
-function loadEventsFromLocalStorage() {
-    debugLog("Loading events from localStorage");
-    const events = JSON.parse(localStorage.getItem("events")) || [];
-    const approvedEvents = events.filter(event => event.approval === "Disetujui" && event.status === "Aktif");
-    debugLog("LocalStorage events", { total: events.length, approved: approvedEvents.length });
-    displayEvents(approvedEvents);
 }
 
 // Search events
@@ -437,6 +470,25 @@ function formatDate(dateStr) {
 // Utility function to check if element exists
 function elementExists(selector) {
     return document.querySelector(selector) !== null;
+}
+
+// Debug function untuk cek data
+function checkEventData() {
+    const events = JSON.parse(localStorage.getItem("events")) || [];
+    console.log("=== EVENT DATA DEBUG ===");
+    console.log("Total events:", events.length);
+    
+    events.forEach((event, index) => {
+        console.log(`Event ${index + 1}:`, {
+            id: event.id,
+            title: event.title || event.titleEvent,
+            approval: event.approval_status || event.approval,
+            status: event.status,
+            hasPoster: !!(event.poster_url || event.poster)
+        });
+    });
+    
+    return events;
 }
 
 // Initialize debug info
