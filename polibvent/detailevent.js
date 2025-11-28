@@ -129,6 +129,55 @@ function extractJson(text) {
 }
 
 // -----------------------------
+// FUNGSI VALIDASI FILE
+// -----------------------------
+function validateFileSize(fileInput) {
+  const file = fileInput.files[0];
+  const errorElementId = fileInput.id + 'SizeError';
+  const errorElement = document.getElementById(errorElementId);
+  
+  if (!file) return true;
+  
+  const minSize = 10 * 1024; // 10KB
+  const maxSize = 2 * 1024 * 1024; // 2MB
+  
+  if (file.size < minSize) {
+      if (errorElement) {
+          errorElement.textContent = `File terlalu kecil. Minimal ${minSize/1024}KB.`;
+          errorElement.style.display = 'block';
+      }
+      fileInput.value = '';
+      return false;
+  }
+  
+  if (file.size > maxSize) {
+      if (errorElement) {
+          errorElement.textContent = `File terlalu besar. Maksimal ${maxSize/(1024*1024)}MB.`;
+          errorElement.style.display = 'block';
+      }
+      fileInput.value = '';
+      return false;
+  }
+  
+  // Validasi tipe file
+  const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+  if (!validTypes.includes(file.type)) {
+      if (errorElement) {
+          errorElement.textContent = 'Format file tidak didukung. Gunakan JPG, PNG, GIF, atau WebP.';
+          errorElement.style.display = 'block';
+      }
+      fileInput.value = '';
+      return false;
+  }
+  
+  if (errorElement) {
+      errorElement.style.display = 'none';
+  }
+  
+  return true;
+}
+
+// -----------------------------
 // UI MESSAGE HELPERS
 // -----------------------------
 function showError(message) {
@@ -252,6 +301,9 @@ function initializeEditModal() {
       if (form) form.reset();
       const preview = document.getElementById("editPosterPreview");
       if (preview) preview.style.display = 'none';
+      // Reset error messages
+      const errorElement = document.getElementById("editPosterSizeError");
+      if (errorElement) errorElement.style.display = 'none';
     });
   }
 
@@ -262,6 +314,9 @@ function initializeEditModal() {
       if (form) form.reset();
       const preview = document.getElementById("editPosterPreview");
       if (preview) preview.style.display = 'none';
+      // Reset error messages
+      const errorElement = document.getElementById("editPosterSizeError");
+      if (errorElement) errorElement.style.display = 'none';
     }
   });
 
@@ -271,22 +326,22 @@ function initializeEditModal() {
       const file = e.target.files[0];
       const preview = document.getElementById("editPosterPreview");
       const errEl = document.getElementById("editPosterError");
+      const sizeErrEl = document.getElementById("editPosterSizeError");
+      
+      // Reset error messages
       if (errEl) errEl.textContent = '';
+      if (sizeErrEl) sizeErrEl.style.display = 'none';
+      
       if (!file) {
         if (preview) { preview.style.display = 'none'; preview.src = ''; }
         return;
       }
-      const validTypes = ['image/jpeg','image/jpg','image/png','image/gif','image/webp'];
-      if (!validTypes.includes(file.type)) {
-        if (errEl) errEl.textContent = 'Format tidak didukung (gunakan JPG/PNG/GIF/WebP).';
-        posterInput.value = '';
+      
+      // Validasi file size
+      if (!validateFileSize(posterInput)) {
         return;
       }
-      if (file.size > 2 * 1024 * 1024) {
-        if (errEl) errEl.textContent = 'Ukuran file maksimal 2MB.';
-        posterInput.value = '';
-        return;
-      }
+      
       const reader = new FileReader();
       reader.onload = function(evt) {
         if (preview) { preview.src = evt.target.result; preview.style.display = 'block'; }
@@ -499,9 +554,18 @@ async function handleEditEventForm() {
   hideEditMessages();
   if (!validateEditForm()) return;
 
+  // Validasi file size sebelum submit
+  const posterInput = document.getElementById('editPoster');
+  if (posterInput.files[0] && !validateFileSize(posterInput)) {
+    return;
+  }
+
   const submitBtn = document.querySelector('#editEventForm .btn-save') || document.querySelector('#submitEditBtn');
   const originalText = submitBtn ? submitBtn.innerHTML : null;
-  if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; }
+  if (submitBtn) { 
+    submitBtn.disabled = true; 
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; 
+  }
 
   try {
     const form = document.getElementById('editEventForm');
@@ -524,7 +588,7 @@ async function handleEditEventForm() {
       location: String(fd.get('location') || '').trim(),
       status: fd.get('status') || currentEvent.status,
       poster_url: posterData,
-      approval_status: currentEvent.approval_status || 'pending'
+      approval_status: "Menunggu" // RESET STATUS PERSETUJUAN SETELAH EDIT
     };
 
     // Kirim ke server (PUT)
@@ -540,12 +604,12 @@ async function handleEditEventForm() {
       // Jika server tidak mengembalikan JSON, coba update di localStorage sebagai fallback
       updateEventInLocalStorage(updatedEvent);
       await loadEventData(updatedEvent.id);
-      showSuccess('Event diperbarui (fallback local).');
+      showSuccess('Event diperbarui (fallback local). Status persetujuan direset ke "Menunggu".');
     } else {
       if (parsed.success) {
         // Update sukses di server -> reload data dari server untuk sinkron
         await loadEventData(updatedEvent.id);
-        showSuccess('Event berhasil diperbarui.');
+        showSuccess('Event berhasil diperbarui! Status persetujuan direset ke "Menunggu".');
       } else {
         throw new Error(parsed.message || 'Server menolak update.');
       }
@@ -562,10 +626,16 @@ async function handleEditEventForm() {
 
   } catch (err) {
     const errEl = document.getElementById('editErrorMessage');
-    if (errEl) { errEl.innerHTML = escapeHtml('Gagal mengupdate event: ' + err.message); errEl.style.display = 'block'; }
+    if (errEl) { 
+      errEl.innerHTML = escapeHtml('Gagal mengupdate event: ' + err.message); 
+      errEl.style.display = 'block'; 
+    }
     console.error('Update error:', err);
   } finally {
-    if (submitBtn) { submitBtn.disabled = false; if (originalText) submitBtn.innerHTML = originalText; }
+    if (submitBtn) { 
+      submitBtn.disabled = false; 
+      if (originalText) submitBtn.innerHTML = originalText; 
+    }
   }
 }
 
@@ -587,7 +657,7 @@ function updateEventInLocalStorage(eventData) {
       location: eventData.location,
       description: eventData.description,
       status: eventData.status,
-      approval_status: eventData.approval_status || 'pending',
+      approval_status: "Menunggu", // Reset status persetujuan
       updated_at: new Date().toISOString()
     };
     if (idx !== -1) {

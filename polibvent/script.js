@@ -13,6 +13,53 @@ function debugLog(message, data = null) {
     console.log(`[DEBUG] ${message}`, data || '');
 }
 
+// Fungsi validasi ukuran file
+function validateFileSize(fileInput) {
+    const file = fileInput.files[0];
+    const errorElementId = fileInput.id + 'SizeError';
+    const errorElement = document.getElementById(errorElementId);
+    
+    if (!file) return true;
+    
+    const minSize = 10 * 1024; // 10KB
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    
+    if (file.size < minSize) {
+        if (errorElement) {
+            errorElement.textContent = `File terlalu kecil. Minimal ${minSize/1024}KB.`;
+            errorElement.style.display = 'block';
+        }
+        fileInput.value = '';
+        return false;
+    }
+    
+    if (file.size > maxSize) {
+        if (errorElement) {
+            errorElement.textContent = `File terlalu besar. Maksimal ${maxSize/(1024*1024)}MB.`;
+            errorElement.style.display = 'block';
+        }
+        fileInput.value = '';
+        return false;
+    }
+    
+    // Validasi tipe file
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+        if (errorElement) {
+            errorElement.textContent = 'Format file tidak didukung. Gunakan JPG, PNG, GIF, atau WebP.';
+            errorElement.style.display = 'block';
+        }
+        fileInput.value = '';
+        return false;
+    }
+    
+    if (errorElement) {
+        errorElement.style.display = 'none';
+    }
+    
+    return true;
+}
+
 // Initialize when DOM is loaded
 document.addEventListener("DOMContentLoaded", function() {
     debugLog("DOM Content Loaded - Public View");
@@ -82,6 +129,9 @@ function initializeModal() {
             if (addEventForm) addEventForm.reset();
             const posterPreview = document.getElementById("posterPreview");
             if (posterPreview) posterPreview.style.display = "none";
+            // Reset error messages
+            const errorElement = document.getElementById("posterSizeError");
+            if (errorElement) errorElement.style.display = "none";
         });
     }
 
@@ -121,6 +171,9 @@ function initializeModal() {
             if (form) form.reset();
             const posterPreview = document.getElementById('posterPreview');
             if (posterPreview) posterPreview.style.display = 'none';
+            // Reset error messages
+            const errorElement = document.getElementById("posterSizeError");
+            if (errorElement) errorElement.style.display = "none";
         }
     });
 }
@@ -128,11 +181,18 @@ function initializeModal() {
 // Handle add event form submission
 async function handleAddEventForm() {
     const formData = new FormData(document.getElementById("addEventForm"));
-    let posterData = "";
+    
+    // Validasi file size sebelum submit
+    const posterInput = document.getElementById("poster");
+    if (posterInput.files[0] && !validateFileSize(posterInput)) {
+        return;
+    }
     
     try {
         // Convert image to base64 if provided
         const posterFile = formData.get("poster");
+        let posterData = "";
+        
         if (posterFile && posterFile.size > 0) {
             debugLog("Processing poster file", posterFile.name);
             posterData = await toBase64(posterFile);
@@ -154,7 +214,7 @@ async function handleAddEventForm() {
             location: formData.get("location"),
             poster_url: posterData,
             status: "Aktif",
-            approval_status: "Menunggu"
+            approval_status: "Menunggu" // Status menunggu persetujuan
         };
 
         debugLog("New event data", newEvent);
@@ -173,7 +233,7 @@ async function handleAddEventForm() {
             debugLog("API response", result);
             
             if (result.success) {
-                // Reset form and close modal
+                // Reset form dan close modal
                 document.getElementById("addEventForm").reset();
                 const posterPreview = document.getElementById("posterPreview");
                 if (posterPreview) {
@@ -217,7 +277,7 @@ function saveToLocalStorage(eventData) {
         description: eventData.description,
         status: "Aktif",
         poster_url: eventData.poster_url,
-        approval_status: "Menunggu",
+        approval_status: "Menunggu", // Status persetujuan
         
         // Compatibility fields
         titleEvent: eventData.title,
