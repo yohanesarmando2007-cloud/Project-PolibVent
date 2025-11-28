@@ -107,7 +107,7 @@ body {
   align-items: flex-start;
   padding: 50px 60px;
   gap: 50px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap; /* Ubah dari wrap ke nowrap agar tidak turun */
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -121,6 +121,7 @@ body {
   border-radius: 12px;
   box-shadow: var(--shadow);
   transition: transform 0.3s ease;
+  order: 1; /* Pastikan info event di kiri */
 }
 
 .info-event:hover {
@@ -181,8 +182,9 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  min-width: 250px;
+  min-width: 300px;
   position: relative;
+  order: 2; /* Pastikan poster di kanan */
 }
 
 .poster-img {
@@ -530,32 +532,136 @@ body {
   background: var(--warning);
 }
 
-/* RESPONSIVE DESIGN */
-@media screen and (max-width: 1200px) {
+/* ============================================= */
+/* ELEMEN DEBUG - DISEMBUNYIKAN DI PRODUCTION */
+/* ============================================= */
+
+/* Sembunyikan semua elemen debug secara default */
+.debug-info,
+.server-response,
+.data-issue-warning,
+.hidden {
+  display: none !important;
+}
+
+/* Untuk debugging, tambahkan class .debug-mode di body */
+body.debug-mode .debug-info,
+body.debug-mode .server-response,
+body.debug-mode .data-issue-warning,
+body.debug-mode .hidden {
+  display: block !important;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-family: monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: #374151;
+}
+
+body.debug-mode .data-issue-warning {
+  background: #fef3cd;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+/* Tombol debug */
+.btn-debug {
+  background: #6b7280;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn-debug:hover {
+  background: #4b5563;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 18px;
+  flex-direction: column;
+}
+
+.loading-overlay.active {
+  display: flex;
+}
+
+.loading-overlay i {
+  font-size: 40px;
+  margin-bottom: 15px;
+}
+
+/* ============================================= */
+/* RESPONSIVE DESIGN - PERBAIKAN LAYOUT */
+/* ============================================= */
+
+/* Desktop Large */
+@media screen and (min-width: 1201px) {
+  .container {
+    padding: 50px 60px;
+    gap: 50px;
+    flex-wrap: nowrap;
+  }
+  
+  .info-event {
+    flex: 1 1 55%;
+  }
+  
+  .poster-container {
+    flex: 1 1 40%;
+  }
+}
+
+/* Desktop Medium */
+@media screen and (max-width: 1200px) and (min-width: 991px) {
   .container {
     padding: 40px;
     gap: 40px;
+    flex-wrap: nowrap;
   }
   
   .info-event h1 {
     font-size: 2.2rem;
   }
+  
+  .poster-img {
+    max-width: 400px;
+  }
 }
 
-@media screen and (max-width: 990px) {
+/* Tablet Landscape */
+@media screen and (max-width: 990px) and (min-width: 769px) {
   .container {
-    flex-direction: column;
-    padding: 30px 20px;
+    padding: 30px;
+    gap: 30px;
+    flex-wrap: nowrap; /* Tetap sejajar */
   }
 
-  .info-event,
-  .poster-container {
-    width: 100%;
+  .info-event {
+    padding: 30px;
+    flex: 1 1 50%;
   }
 
   .poster-container {
-    margin-top: 30px;
-    order: -1;
+    flex: 1 1 45%;
   }
 
   .info-event h1 {
@@ -563,31 +669,42 @@ body {
   }
 
   .header {
-    padding: 12px 20px;
-    flex-direction: column;
-    gap: 15px;
+    padding: 12px 30px;
   }
 
-  .header-buttons {
-    width: 100%;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .btn-home,
-  .btn-masuk,
-  .btn-edit {
-    padding: 10px 20px;
-    font-size: 13px;
-    margin: 5px;
-  }
-
-  .logo img {
-    width: 120px;
+  .poster-img {
+    max-width: 350px;
   }
 }
 
-@media screen and (max-width: 768px) {
+/* Tablet Portrait - Mulai stack vertikal */
+@media screen and (max-width: 768px) and (min-width: 481px) {
+  .container {
+    flex-direction: column;
+    padding: 25px 20px;
+    gap: 30px;
+  }
+
+  .info-event,
+  .poster-container {
+    width: 100%;
+    order: unset; /* Reset order */
+  }
+
+  .info-event {
+    order: 1; /* Info di atas */
+  }
+
+  .poster-container {
+    order: 2; /* Poster di bawah */
+    margin-top: 0;
+  }
+
+  .info-event h1 {
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+  }
+
   .form-row {
     grid-template-columns: 1fr;
     gap: 15px;
@@ -610,15 +727,6 @@ body {
     width: 100%;
   }
   
-  .info-event {
-    padding: 25px;
-  }
-  
-  .info-event h1 {
-    font-size: 1.6rem;
-    margin-bottom: 20px;
-  }
-  
   .info-event p {
     font-size: 14px;
     padding: 12px;
@@ -626,33 +734,79 @@ body {
   }
 }
 
+/* Mobile */
 @media screen and (max-width: 480px) {
   .container {
+    flex-direction: column;
     padding: 20px 15px;
+    gap: 25px;
   }
-  
+
   .info-event {
     padding: 20px;
+    order: 1;
   }
-  
+
+  .poster-container {
+    order: 2;
+    margin-top: 0;
+  }
+
   .info-event h1 {
     font-size: 1.4rem;
   }
-  
+
   .modal-content h3 {
     font-size: 1.4rem;
   }
-  
+
+  .header {
+    padding: 10px 15px;
+    flex-direction: column;
+    gap: 10px;
+  }
+
   .header-buttons {
     flex-direction: column;
     gap: 8px;
+    width: 100%;
   }
-  
+
   .btn-home,
   .btn-masuk,
   .btn-edit {
     width: 100%;
     margin: 2px 0;
+    padding: 10px 20px;
+  }
+
+  .logo img {
+    width: 120px;
+  }
+
+  .poster-img {
+    max-width: 100%;
+  }
+}
+
+/* Small Mobile */
+@media screen and (max-width: 360px) {
+  .container {
+    padding: 15px 10px;
+    gap: 20px;
+  }
+
+  .info-event {
+    padding: 15px;
+  }
+
+  .info-event h1 {
+    font-size: 1.3rem;
+  }
+
+  .info-event p {
+    padding: 10px;
+    margin-bottom: 15px;
   }
 }
 
@@ -682,4 +836,24 @@ select:focus-visible {
 
 .modal-content::-webkit-scrollbar-thumb:hover {
   background: var(--secondary-blue);
+}
+
+/* Print Styles */
+@media print {
+  .header-buttons,
+  .btn-edit,
+  .loading-overlay {
+    display: none !important;
+  }
+  
+  .container {
+    flex-direction: row;
+    box-shadow: none;
+  }
+  
+  .info-event,
+  .poster-container {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
 }
