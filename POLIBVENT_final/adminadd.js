@@ -195,46 +195,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Special validation for file input
     posterInput.addEventListener('change', () => {
-        removeError(posterInput);
-        updateSubmitButton();
-        
-        const file = posterInput.files[0];
-        if (file) {
-            // Validate file type
-            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-            if (!allowedTypes.includes(file.type)) {
-                showError(posterInput, 'Hanya file gambar yang diperbolehkan (JPEG, PNG, GIF, WebP)');
-                posterInput.value = '';
-                return;
-            }
-            
-            // Validate file size (max 5MB)
-            const maxSize = 5 * 1024 * 1024; // 5MB
-            if (file.size > maxSize) {
-                showError(posterInput, 'Ukuran file terlalu besar. Maksimal 5MB');
-                posterInput.value = '';
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = () => {
-                posterPreview.src = reader.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+    removeError(posterInput);
+    updateSubmitButton();
 
-    // Preview poster
-    posterInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                posterPreview.src = reader.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+    const file = posterInput.files[0];
+    if (!file) return;
+
+    // ✅ Validasi tipe file (HANYA JPG & PNG)
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!allowedTypes.includes(file.type)) {
+        showError(posterInput, 'Poster harus berformat JPG atau PNG');
+        posterInput.value = '';
+        posterPreview.src = '';
+        return;
+    }
+
+    // ✅ Validasi ukuran file (maksimal 5 MB)
+    const maxSize = 5 * 1024 * 1024; // 5 MB
+    if (file.size > maxSize) {
+        showError(posterInput, 'Ukuran poster maksimal 5 MB');
+        posterInput.value = '';
+        posterPreview.src = '';
+        return;
+    }
+
+    // ✅ Preview jika lolos validasi
+    const reader = new FileReader();
+    reader.onload = () => {
+        posterPreview.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+});
+
 
     // Update submit button state
     function updateSubmitButton() {
