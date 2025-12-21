@@ -13,6 +13,27 @@ function debugLog(message, data = null) {
     console.log(`[DEBUG] ${message}`, data || '');
 }
 
+// Show file error message
+function showFileError(message) {
+    const fileError = document.getElementById('fileError');
+    if (fileError) {
+        fileError.textContent = message;
+        fileError.style.display = 'block';
+        fileError.style.color = '#dc2626';
+        fileError.style.marginTop = '5px';
+        fileError.style.fontSize = '13px';
+    }
+}
+
+// Clear file error message
+function clearFileError() {
+    const fileError = document.getElementById('fileError');
+    if (fileError) {
+        fileError.textContent = '';
+        fileError.style.display = 'none';
+    }
+}
+
 // Initialize when DOM is loaded
 document.addEventListener("DOMContentLoaded", function() {
     debugLog("DOM Content Loaded - Public View");
@@ -72,6 +93,7 @@ function initializeModal() {
         addEventBtn.addEventListener("click", function() {
             debugLog("Add event button clicked");
             addEventModal.style.display = "flex";
+            clearFileError(); // Clear error when opening modal
         });
     }
 
@@ -82,22 +104,67 @@ function initializeModal() {
             if (addEventForm) addEventForm.reset();
             const posterPreview = document.getElementById("posterPreview");
             if (posterPreview) posterPreview.style.display = "none";
+            clearFileError(); // Clear error when closing modal
         });
     }
 
-    // Preview image for add event form
+    // Preview image for add event form with validation
     const posterInput = document.getElementById("poster");
     if (posterInput) {
         posterInput.addEventListener("change", function(e) {
             const file = e.target.files[0];
             const posterPreview = document.getElementById("posterPreview");
-            if (file && posterPreview) {
+            
+            // Clear previous errors
+            clearFileError();
+            
+            if (file) {
+                // ✅ Validasi tipe file (HANYA JPG, JPEG & PNG)
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                if (!allowedTypes.includes(file.type)) {
+                    showFileError('Format file harus JPG, JPEG, atau PNG');
+                    posterInput.value = ''; // Reset input
+                    if (posterPreview) posterPreview.style.display = "none";
+                    return;
+                }
+                
+                // ✅ Validasi ukuran file (maksimal 5 MB)
+                const maxSize = 5 * 1024 * 1024; // 5 MB
+                if (file.size > maxSize) {
+                    const sizeInMB = (file.size / 1024 / 1024).toFixed(2);
+                    showFileError(`Ukuran file terlalu besar (${sizeInMB} MB). Maksimal 5 MB`);
+                    posterInput.value = ''; // Reset input
+                    if (posterPreview) posterPreview.style.display = "none";
+                    return;
+                }
+                
+                // Show file size info
+                const sizeInMB = (file.size / 1024 / 1024).toFixed(2);
+                const fileSizeInfo = document.getElementById('fileSizeInfo');
+                if (fileSizeInfo) {
+                    fileSizeInfo.textContent = `Ukuran file: ${sizeInMB} MB`;
+                    fileSizeInfo.style.color = '#059669';
+                    fileSizeInfo.style.display = 'block';
+                }
+                
+                // Validasi berhasil, tampilkan preview
+                debugLog("File validation passed", { 
+                    name: file.name, 
+                    type: file.type, 
+                    size: `${sizeInMB} MB` 
+                });
+                
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    posterPreview.src = e.target.result;
-                    posterPreview.style.display = "block";
+                    if (posterPreview) {
+                        posterPreview.src = e.target.result;
+                        posterPreview.style.display = "block";
+                    }
                 };
                 reader.readAsDataURL(file);
+            } else {
+                // No file selected
+                if (posterPreview) posterPreview.style.display = "none";
             }
         });
     }
@@ -107,6 +174,29 @@ function initializeModal() {
         addEventForm.addEventListener("submit", async function(e) {
             e.preventDefault();
             debugLog("Add event form submitted");
+            
+            // Validasi file sebelum submit
+            const posterInput = document.getElementById("poster");
+            if (posterInput && posterInput.files.length > 0) {
+                const file = posterInput.files[0];
+                
+                // Validasi tipe file
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                if (!allowedTypes.includes(file.type)) {
+                    showFileError('Format file harus JPG, JPEG, atau PNG');
+                    posterInput.focus();
+                    return;
+                }
+                
+                // Validasi ukuran file
+                const maxSize = 5 * 1024 * 1024; // 5 MB
+                if (file.size > maxSize) {
+                    const sizeInMB = (file.size / 1024 / 1024).toFixed(2);
+                    showFileError(`Ukuran file terlalu besar (${sizeInMB} MB). Maksimal 5 MB`);
+                    posterInput.focus();
+                    return;
+                }
+            }
             
             await handleAddEventForm();
         });
@@ -121,6 +211,7 @@ function initializeModal() {
             if (form) form.reset();
             const posterPreview = document.getElementById('posterPreview');
             if (posterPreview) posterPreview.style.display = 'none';
+            clearFileError(); // Clear error when closing modal
         }
     });
 }
@@ -134,7 +225,26 @@ async function handleAddEventForm() {
         // Convert image to base64 if provided
         const posterFile = formData.get("poster");
         if (posterFile && posterFile.size > 0) {
-            debugLog("Processing poster file", posterFile.name);
+            debugLog("Processing poster file", { 
+                name: posterFile.name, 
+                size: `${(posterFile.size / 1024 / 1024).toFixed(2)} MB` 
+            });
+            
+            // Final validation before processing
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            const maxSize = 5 * 1024 * 1024;
+            
+            if (!allowedTypes.includes(posterFile.type)) {
+                showFileError('Format file tidak valid. Hanya JPG, JPEG, atau PNG');
+                return;
+            }
+            
+            if (posterFile.size > maxSize) {
+                const sizeInMB = (posterFile.size / 1024 / 1024).toFixed(2);
+                showFileError(`Ukuran file terlalu besar (${sizeInMB} MB)`);
+                return;
+            }
+            
             posterData = await toBase64(posterFile);
             debugLog("Poster converted to base64", { length: posterData.length });
         } else {
@@ -157,7 +267,19 @@ async function handleAddEventForm() {
             approval_status: "Menunggu"
         };
 
-        debugLog("New event data", newEvent);
+        debugLog("New event data", { 
+            title: newEvent.title,
+            hasPoster: !!posterData,
+            posterSize: posterData.length 
+        });
+        
+        // Show loading state
+        const submitBtn = document.querySelector('#addEventForm button[type="submit"]');
+        const originalText = submitBtn ? submitBtn.innerHTML : '';
+        if (submitBtn) {
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+            submitBtn.disabled = true;
+        }
         
         // Try to save to database via API
         try {
@@ -172,6 +294,12 @@ async function handleAddEventForm() {
             const result = await response.json();
             debugLog("API response", result);
             
+            // Reset button state
+            if (submitBtn) {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+            
             if (result.success) {
                 // Reset form and close modal
                 document.getElementById("addEventForm").reset();
@@ -184,6 +312,13 @@ async function handleAddEventForm() {
                     addEventModal.style.display = "none";
                 }
                 
+                // Hide file size info
+                const fileSizeInfo = document.getElementById('fileSizeInfo');
+                if (fileSizeInfo) fileSizeInfo.style.display = 'none';
+                
+                // Clear file error
+                clearFileError();
+                
                 // Reload events
                 loadEvents();
                 
@@ -193,12 +328,24 @@ async function handleAddEventForm() {
             }
         } catch (error) {
             console.error('Error adding event:', error);
+            // Reset button state
+            if (submitBtn) {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
             // Fallback to localStorage if API fails
             saveToLocalStorage(newEvent);
         }
     } catch (error) {
         console.error('Error in form handling:', error);
         alert("Terjadi kesalahan saat memproses form.");
+        
+        // Reset button state
+        const submitBtn = document.querySelector('#addEventForm button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
     }
 }
 
@@ -241,6 +388,13 @@ function saveToLocalStorage(eventData) {
     if (addEventForm) addEventForm.reset();
     if (posterPreview) posterPreview.style.display = "none";
     if (addEventModal) addEventModal.style.display = "none";
+    
+    // Hide file size info
+    const fileSizeInfo = document.getElementById('fileSizeInfo');
+    if (fileSizeInfo) fileSizeInfo.style.display = 'none';
+    
+    // Clear file error
+    clearFileError();
     
     // Reload events
     loadEvents();

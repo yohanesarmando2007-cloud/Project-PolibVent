@@ -75,6 +75,35 @@
                     <label for="poster">Poster Event</label>
                     <input type="file" id="poster" name="poster" accept="image/*">
                     <img id="posterPreview" src="" style="max-width:100%; margin-top:10px; display:none; border-radius:8px;">
+                    
+                    <!-- Tambahkan pesan validasi file di sini -->
+                    <div id="fileError" style="color: #dc2626; font-size: 13px; margin-top: 5px; display: none;"></div>
+                    <div id="fileSizeInfo" style="color: #059669; font-size: 13px; margin-top: 5px; display: none;"></div>
+                    
+                    <!-- Informasi format dan ukuran file -->
+                    <div class="file-info" style="
+                        margin-top: 6px;
+                        font-size: 12px;
+                        color: #6b7280;
+                        padding: 8px;
+                        background-color: #f8fafc;
+                        border-radius: 4px;
+                    ">
+                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                            <span style="font-weight: 600;">Format yang didukung:</span>
+                        </div>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <span style="display: flex; align-items: center; gap: 4px;">
+                                JPG (.jpg, .jpeg)
+                            </span>
+                            <span style="display: flex; align-items: center; gap: 4px;">
+                                PNG (.png)
+                            </span>
+                        </div>
+                        <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px;">
+                            <span><strong>Maksimal ukuran:</strong> 5 MB (Megabyte)</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="startDate">Tanggal Mulai *</label>

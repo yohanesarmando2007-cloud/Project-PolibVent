@@ -93,9 +93,74 @@ function validateField(field) {
     }
     
     // Special validation for file input
-    if (field.type === 'file' && field.hasAttribute('required') && !field.files[0]) {
-        showError(field, 'File poster wajib diupload');
-        return false;
+    posterInput.addEventListener('change', () => {
+        removeError(posterInput);
+        updateSubmitButton();
+
+        const file = posterInput.files[0];
+        if (!file) return;
+
+        // Validasi tipe file (HANYA JPG & PNG)
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        if (!allowedTypes.includes(file.type)) {
+            showError(posterInput, 'Poster harus berformat JPG atau PNG');
+            posterInput.value = '';
+            posterPreview.src = '';
+            
+            // Tampilkan status file
+            updateFileStatus('invalid', 'Format file tidak didukung');
+            return;
+        }
+
+        // Validasi ukuran file (maksimal 5 MB)
+        const maxSize = 5 * 1024 * 1024; // 5 MB
+        if (file.size > maxSize) {
+            showError(posterInput, 'Ukuran poster maksimal 5 MB');
+            posterInput.value = '';
+            posterPreview.src = '';
+            
+            // Tampilkan status file
+            const sizeInMB = (file.size / 1024 / 1024).toFixed(2);
+            updateFileStatus('invalid', `File terlalu besar (${sizeInMB} MB)`);
+            return;
+        }
+
+        // Preview jika lolos validasi
+        const reader = new FileReader();
+        reader.onload = () => {
+            posterPreview.src = reader.result;
+            
+            // Tampilkan status file valid
+            const sizeInMB = (file.size / 1024 / 1024).toFixed(2);
+            updateFileStatus('valid', `File valid: ${sizeInMB} MB`);
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Fungsi untuk menampilkan status file
+    function updateFileStatus(type, message) {
+        // Hapus status lama jika ada
+        const oldStatus = document.querySelector('.file-status');
+        if (oldStatus) {
+            oldStatus.remove();
+        }
+        
+        // Buat elemen status baru
+        const fileInfo = document.querySelector('.file-info');
+        if (fileInfo) {
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `file-status ${type}`;
+            statusDiv.innerHTML = `
+                ${type === 'valid' ? 
+                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>' : 
+                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>'
+                }
+                ${message}
+            `;
+            
+            // Masukkan status di bawah file-info
+            fileInfo.parentNode.insertBefore(statusDiv, fileInfo.nextSibling);
+        }
     }
     
     // Special validation for date fields
