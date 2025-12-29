@@ -1,12 +1,7 @@
-// detailevent.js (FULL CLEAN - NO DEBUG)
-
 // Konfigurasi
 const API_BASE_URL = 'api_events.php';
 let currentEvent = null;
 
-// -----------------------------
-// UTILITIES
-// -----------------------------
 function escapeHtml(unsafe) {
   if (!unsafe) return '';
   return String(unsafe)
@@ -53,12 +48,10 @@ function formatTimeForInput(timeStr) {
   return timeStr;
 }
 
-// Normalisasi waktu (menerima "HH:MM", "HH:MM:SS", null, or bad)
 function normalizeTime(timeStr) {
   if (!timeStr || timeStr === 'null' || timeStr === 'undefined' || timeStr === '') return '00:00';
   if (typeof timeStr !== 'string') timeStr = String(timeStr);
 
-  // If contains 3 parts -> HH:MM:SS => return HH:MM
   if (timeStr.includes(':') && timeStr.split(':').length === 3) {
     const [h, m] = timeStr.split(':');
     const hh = String(Math.max(0, Math.min(23, parseInt(h) || 0))).padStart(2,'0');
@@ -178,31 +171,11 @@ function validateFileSize(fileInput) {
 }
 
 // -----------------------------
-// UI MESSAGE HELPERS
-// -----------------------------
-function showError(message) {
-  const el = document.getElementById("errorMessage");
-  if (el) { el.innerHTML = escapeHtml(message); el.style.display = 'block'; }
-  const title = document.getElementById("eventTitle");
-  if (title) title.textContent = "Error Memuat Event";
-  hideLoading();
-}
-
-function showSuccess(message) {
-  const el = document.getElementById("successMessage");
-  if (el) {
-    el.innerHTML = escapeHtml(message);
-    el.style.display = 'block';
-    setTimeout(()=> el.style.display = 'none', 4000);
-  }
-}
-
-// -----------------------------
 // DISPLAY EVENT DATA
 // -----------------------------
 function displayEventData(ev) {
   if (!ev) {
-    showError("Data event tidak valid.");
+    alert("❌ Data event tidak valid.");
     return;
   }
 
@@ -222,7 +195,16 @@ function displayEventData(ev) {
   if (timeEl) timeEl.textContent = `${ formatTimeForDisplay(e.start_time) } - ${ formatTimeForDisplay(e.end_time) }`;
   if (locEl) locEl.textContent = e.location;
   if (statusEl) statusEl.textContent = e.status;
-  if (descEl) descEl.textContent = e.description;
+  
+  // PERUBAHAN: Agar link bisa diklik
+  if (descEl) {
+    // Ubah URL dalam teks menjadi link
+    const textWithLinks = e.description.replace(
+      /(https?:\/\/[^\s]+)/g, 
+      '<a href="$1" target="_blank" style="color: blue; text-decoration: underline;">$1</a>'
+    );
+    descEl.innerHTML = textWithLinks;
+  }
 
   if (posterImg) {
     if (e.poster_url && e.poster_url !== 'null' && e.poster_url !== 'undefined') {
@@ -267,7 +249,7 @@ async function loadEventData(selectedId) {
       displayEventData(ev);
       return ev;
     } else {
-      showError("Gagal memuat event dari server dan localStorage.");
+      alert("❌ Gagal memuat event dari server dan localStorage.");
       throw err;
     }
   }
@@ -286,11 +268,10 @@ function initializeEditModal() {
   if (editBtn) {
     editBtn.addEventListener('click', () => {
       if (!currentEvent) {
-        showError("Data event belum dimuat. Refresh halaman.");
+        alert("❌ Data event belum dimuat. Refresh halaman.");
         return;
       }
       populateEditForm(currentEvent);
-      hideEditMessages();
       modal.style.display = 'flex';
     });
   }
@@ -408,14 +389,6 @@ function populateEditForm(ev) {
       posterPreview.src = '';
     }
   }
-}
-
-function hideEditMessages() {
-  const ids = ['editErrorMessage','editSuccessMessage','errorMessage','successMessage'];
-  ids.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
-  });
 }
 
 function validateDates() {
@@ -551,16 +524,19 @@ function toBase64(file) {
 // HANDLE SUBMIT (EDIT) + PUT
 // -----------------------------
 async function handleEditEventForm() {
-  hideEditMessages();
-  if (!validateEditForm()) return;
+  if (!validateEditForm()) {
+    alert("❌ Harap isi semua field yang wajib diisi dengan benar.");
+    return;
+  }
 
   // Validasi file size sebelum submit
   const posterInput = document.getElementById('editPoster');
   if (posterInput.files[0] && !validateFileSize(posterInput)) {
+    alert("❌ File poster tidak valid. Pastikan ukuran dan format sesuai.");
     return;
   }
 
-  const submitBtn = document.querySelector('#editEventForm .btn-save') || document.querySelector('#submitEditBtn');
+  const submitBtn = document.querySelector('#editEventForm .btn-submit') || document.querySelector('#submitEditBtn');
   const originalText = submitBtn ? submitBtn.innerHTML : null;
   if (submitBtn) { 
     submitBtn.disabled = true; 
@@ -604,12 +580,12 @@ async function handleEditEventForm() {
       // Jika server tidak mengembalikan JSON, coba update di localStorage sebagai fallback
       updateEventInLocalStorage(updatedEvent);
       await loadEventData(updatedEvent.id);
-      showSuccess('Event diperbarui (fallback local). Status persetujuan direset ke "Menunggu".');
+      alert("✅ Event berhasil diperbarui! Status persetujuan direset ke 'Menunggu'.");
     } else {
       if (parsed.success) {
         // Update sukses di server -> reload data dari server untuk sinkron
         await loadEventData(updatedEvent.id);
-        showSuccess('Event berhasil diperbarui! Status persetujuan direset ke "Menunggu".');
+        alert("✅ Data event berhasil diperbarui! Menunggu persetujuan admin.");
       } else {
         throw new Error(parsed.message || 'Server menolak update.');
       }
@@ -622,14 +598,10 @@ async function handleEditEventForm() {
       if (form) form.reset();
       const preview = document.getElementById('editPosterPreview');
       if (preview) preview.style.display = 'none';
-    }, 800);
+    }, 500);
 
   } catch (err) {
-    const errEl = document.getElementById('editErrorMessage');
-    if (errEl) { 
-      errEl.innerHTML = escapeHtml('Gagal mengupdate event: ' + err.message); 
-      errEl.style.display = 'block'; 
-    }
+    alert("❌ Gagal mengupdate event: " + err.message);
     console.error('Update error:', err);
   } finally {
     if (submitBtn) { 
@@ -681,7 +653,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initializeEditModal();
 
   if (!selectedId) {
-    showError('Tidak ada event yang dipilih.');
+    alert("❌ Tidak ada event yang dipilih.");
     return;
   }
 
