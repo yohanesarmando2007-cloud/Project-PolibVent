@@ -13,6 +13,84 @@ function debugLog(message, data = null) {
     console.log(`[DASHBOARD] ${message}`, data || '');
 }
 
+// ============================================
+// VALIDASI TANGGAL DENGAN ALERT ERROR
+// ============================================
+
+// Fungsi validasi tanggal dengan alert
+function validateDateTimeWithAlert(form) {
+    const startDate = form.querySelector('input[name="dateStart"]');
+    const endDate = form.querySelector('input[name="dateEnd"]');
+    const startTime = form.querySelector('input[name="timeStart"]');
+    const endTime = form.querySelector('input[name="timeEnd"]');
+    
+    if (!startDate || !endDate || !startTime || !endTime) {
+        return true;
+    }
+    
+    // 1. Validasi: Tanggal selesai tidak boleh sebelum tanggal mulai
+    if (startDate.value && endDate.value) {
+        const start = new Date(startDate.value);
+        const end = new Date(endDate.value);
+        
+        if (end < start) {
+            alert('❌ ERROR: Tanggal selesai tidak boleh sebelum tanggal mulai!');
+            return false;
+        }
+    }
+    
+    // 2. Validasi: Jika tanggal sama, waktu selesai harus setelah waktu mulai
+    if (startDate.value === endDate.value && startTime.value && endTime.value) {
+        if (endTime.value <= startTime.value) {
+            alert('❌ ERROR: Pada tanggal yang sama, waktu selesai harus setelah waktu mulai!');
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+// ============================================
+// VALIDASI FILE POSTER (maksimal 5MB)
+// ============================================
+
+function validatePosterFile(file) {
+    if (!file) return { valid: true };
+    
+    // Validasi tipe file
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png,', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+        return {
+            valid: false,
+            message: '❌ Format file tidak didukung. Gunakan JPG, PNG, WEBP'
+        };
+    }
+    
+    // Validasi ukuran minimum (10KB)
+    const minSize = 10 * 1024; // 10KB
+    if (file.size < minSize) {
+        const sizeInKB = (file.size / 1024).toFixed(2);
+        return {
+            valid: false,
+            message: `❌ File terlalu kecil (${sizeInKB} KB). Minimal 10 KB.`
+        };
+    }
+    
+    // Validasi ukuran maksimum (5MB)
+    const maxSize = 5 * 1024 * 1024; // 5 MB
+    if (file.size > maxSize) {
+        const sizeInMB = (file.size / 1024 / 1024).toFixed(2);
+        return {
+            valid: false,
+            message: `❌ Ukuran file terlalu besar (${sizeInMB} MB). Maksimal 5 MB`
+        };
+    }
+    
+    return { valid: true };
+}
+
+// ============================================
+
 // Initialize when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
     debugLog("DOM Content Loaded - Admin Dashboard");
@@ -57,11 +135,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div style="margin-bottom:15px;">
                         <label style="display:block; font-weight:bold; margin-bottom:5px;">Judul:</label>
                         <input type="text" name="title" required style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;">
+                        <small style="color:#666; font-size:12px; display:block; margin-top:5px;">Judul event harus jelas dan deskriptif</small>
                     </div>
 
                     <div style="margin-bottom:15px;">
                         <label style="display:block; font-weight:bold; margin-bottom:5px;">Upload Poster:</label>
-                        <input type="file" name="posterFile" accept="image/*" style="width:100%;">
+                        <input type="file" name="posterFile" accept="image/jpeg,image/jpg,image/png,image/webp" style="width:100%;">
+                        <small style="color:#666; font-size:12px; display:block; margin-top:5px;">
+                            Ukuran maksimal: 5MB. Format: JPG, PNG, WEBP
+                        </small>
+                        <div id="fileError" style="color:#dc2626; font-size:12px; margin-top:5px; display:none;"></div>
                         <img id="previewPoster" src="" style="width:100%; max-height:150px; margin-top:10px; border-radius:4px; display:none;">
                     </div>
 
@@ -130,25 +213,75 @@ document.addEventListener("DOMContentLoaded", () => {
         // Close modal handler
         modal.querySelector("#closeModal").addEventListener("click", () => {
             modal.style.display = "none";
+            // Reset form dan error
+            formEdit.reset();
+            document.getElementById("fileError").style.display = "none";
+            document.getElementById("previewPoster").style.display = "none";
         });
 
-        // Image preview handler
-        formEdit.posterFile.addEventListener("change", () => {
+        // Image preview handler dengan validasi
+        formEdit.posterFile.addEventListener("change", (e) => {
             const file = formEdit.posterFile.files[0];
+            const fileError = document.getElementById("fileError");
+            const preview = document.getElementById("previewPoster");
+            
+            // Reset error dan preview
+            fileError.style.display = "none";
+            fileError.textContent = "";
+            
             if (file) {
+                // Validasi file
+                const validation = validatePosterFile(file);
+                if (!validation.valid) {
+                    // Tampilkan error
+                    fileError.textContent = validation.message;
+                    fileError.style.display = "block";
+                    
+                    // Reset input file
+                    formEdit.posterFile.value = "";
+                    
+                    // Sembunyikan preview
+                    preview.style.display = "none";
+                    return;
+                }
+                
+                // Tampilkan preview jika validasi berhasil
                 const reader = new FileReader();
                 reader.onload = () => {
-                    const preview = document.getElementById("previewPoster");
                     preview.src = reader.result;
                     preview.style.display = "block";
                 };
                 reader.readAsDataURL(file);
+            } else {
+                // Jika tidak ada file, sembunyikan preview
+                preview.style.display = "none";
             }
         });
 
-        // Form submit handler
+        // Form submit handler - MODIFIED
         formEdit.addEventListener("submit", async (e) => {
             e.preventDefault();
+            
+            // Validasi tanggal dan waktu
+            if (!validateDateTimeWithAlert(formEdit)) {
+                debugLog("Date/time validation failed");
+                return;
+            }
+            
+            // Validasi file poster sebelum submit
+            const fileInput = formEdit.posterFile;
+            const fileError = document.getElementById("fileError");
+            
+            if (fileInput.files[0]) {
+                const validation = validatePosterFile(fileInput.files[0]);
+                if (!validation.valid) {
+                    fileError.textContent = validation.message;
+                    fileError.style.display = "block";
+                    alert(validation.message);
+                    return;
+                }
+            }
+            
             const id = formEdit.idEvent.value;
             
             debugLog(`Updating event: ${id}`);
@@ -158,19 +291,26 @@ document.addEventListener("DOMContentLoaded", () => {
             // Handle new poster upload
             if (formEdit.posterFile.files[0]) {
                 debugLog("Processing new poster upload");
-                posterData = await toBase64(formEdit.posterFile.files[0]);
+                try {
+                    posterData = await toBase64(formEdit.posterFile.files[0]);
+                    debugLog("Poster converted to base64", { length: posterData.length });
+                } catch (error) {
+                    console.error('Error converting poster to base64:', error);
+                    alert("❌ Gagal memproses file poster. Silakan coba lagi.");
+                    return;
+                }
             }
 
             // Update event data for database
             const updatedEvent = {
                 id: id,
-                title: formEdit.title.value,
-                description: formEdit.description.value,
+                title: formEdit.title.value.trim(),
+                description: formEdit.description.value.trim(),
                 start_date: formEdit.dateStart.value,
                 end_date: formEdit.dateEnd.value,
                 start_time: formEdit.timeStart.value,
                 end_time: formEdit.timeEnd.value,
-                location: formEdit.location.value,
+                location: formEdit.location.value.trim(),
                 poster_url: posterData,
                 status: formEdit.status.value,
                 approval_status: formEdit.approval_status.value
@@ -193,10 +333,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 if (result.success) {
                     editModal.style.display = "none";
+                    formEdit.reset();
+                    document.getElementById("fileError").style.display = "none";
                     loadEvents();
-                    alert("Event berhasil diupdate!");
+                    alert("✅ Event berhasil diupdate!");
                 } else {
-                    alert("Gagal mengupdate event. Silakan coba lagi.");
+                    alert("❌ Gagal mengupdate event. Silakan coba lagi.");
                 }
             } catch (error) {
                 console.error('Error updating event:', error);
@@ -237,8 +379,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             localStorage.setItem("events", JSON.stringify(events));
             editModal.style.display = "none";
+            formEdit.reset();
+            document.getElementById("fileError").style.display = "none";
             loadEvents();
-            alert("Event berhasil diupdate (offline mode)!");
+            alert("✅ Event berhasil diupdate (offline mode)!");
         }
     }
 
@@ -246,6 +390,9 @@ document.addEventListener("DOMContentLoaded", () => {
     function openEditModal(eventData) {
         debugLog(`Opening edit modal for event: ${eventData.id}`);
         editModal.style.display = "flex";
+
+        // Reset error message
+        document.getElementById("fileError").style.display = "none";
 
         // Populate form fields - handle both database and localStorage structures
         formEdit.idEvent.value = eventData.id;
@@ -309,9 +456,6 @@ document.addEventListener("DOMContentLoaded", () => {
         debugLog("Loading events from localStorage");
         const events = JSON.parse(localStorage.getItem("events")) || [];
         
-        // Debug: Tampilkan semua events di console
-        console.log("All events in localStorage:", events);
-        
         // Filter events yang memiliki struktur yang benar
         const validEvents = events.filter(event => {
             const hasTitle = event.title || event.titleEvent;
@@ -324,12 +468,6 @@ document.addEventListener("DOMContentLoaded", () => {
             valid: validEvents.length,
             invalid: events.length - validEvents.length
         });
-        
-        // Tampilkan events yang invalid untuk debugging
-        const invalidEvents = events.filter(event => !(event.title || event.titleEvent));
-        if (invalidEvents.length > 0) {
-            console.warn("Invalid events found:", invalidEvents);
-        }
         
         displayEventsInTable(validEvents);
     }
@@ -365,12 +503,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const eventStatus = event.status || "Aktif";
             const eventApproval = event.approval_status || event.approval || "Menunggu";
             const eventId = event.id;
-
-            debugLog(`Event ${eventId}`, {
-                title: eventTitle,
-                poster: eventPoster?.substring(0, 50) + '...',
-                approval: eventApproval
-            });
 
             let approveUI = "";
 
@@ -447,8 +579,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const keyword = searchInput.value.toLowerCase();
         const rows = document.querySelectorAll("#eventTable tr");
 
-        debugLog(`Searching for: "${keyword}"`, { totalRows: rows.length });
-
         let visibleCount = 0;
 
         rows.forEach(row => {
@@ -458,8 +588,6 @@ document.addEventListener("DOMContentLoaded", () => {
             
             if (isVisible) visibleCount++;
         });
-
-        debugLog(`Search results: ${visibleCount} events found`);
     }
 
     // Table event delegation
@@ -484,9 +612,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     
                     if (result.success) {
                         loadEvents();
-                        alert("Event berhasil dihapus!");
+                        alert("✅ Event berhasil dihapus!");
                     } else {
-                        alert("Gagal menghapus event. Silakan coba lagi.");
+                        alert("❌ Gagal menghapus event. Silakan coba lagi.");
                     }
                 } catch (error) {
                     console.error('Error deleting event:', error);
@@ -518,7 +646,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (event) {
                     openEditModal(event);
                 } else {
-                    alert("Event tidak ditemukan!");
+                    alert("❌ Event tidak ditemukan!");
                 }
             }
         }
@@ -553,9 +681,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     
                     if (result.success) {
                         loadEvents();
-                        alert("Event berhasil disetujui!");
+                        alert("✅ Event berhasil disetujui!");
                     } else {
-                        alert("Gagal menyetujui event.");
+                        alert("❌ Gagal menyetujui event.");
                     }
                 }
             } catch (error) {
@@ -595,9 +723,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     
                     if (result.success) {
                         loadEvents();
-                        alert("Event berhasil ditolak!");
+                        alert("✅ Event berhasil ditolak!");
                     } else {
-                        alert("Gagal menolak event.");
+                        alert("❌ Gagal menolak event.");
                     }
                 }
             } catch (error) {
@@ -614,7 +742,7 @@ document.addEventListener("DOMContentLoaded", () => {
         events = events.filter(ev => ev.id != id);
         localStorage.setItem("events", JSON.stringify(events));
         loadEvents();
-        alert("Event berhasil dihapus (offline mode)!");
+        alert("✅ Event berhasil dihapus (offline mode)!");
     }
 
     function approveEventInLocalStorage(id) {
@@ -625,7 +753,7 @@ document.addEventListener("DOMContentLoaded", () => {
             event.approval_status = "Disetujui";
             localStorage.setItem("events", JSON.stringify(events));
             loadEvents();
-            alert("Event berhasil disetujui (offline mode)!");
+            alert("✅ Event berhasil disetujui (offline mode)!");
         }
     }
 
@@ -637,7 +765,7 @@ document.addEventListener("DOMContentLoaded", () => {
             event.approval_status = "Ditolak";
             localStorage.setItem("events", JSON.stringify(events));
             loadEvents();
-            alert("Event berhasil ditolak (offline mode)!");
+            alert("✅ Event berhasil ditolak (offline mode)!");
         }
     }
 
@@ -649,12 +777,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initialize
     createEditModal();
     loadEvents();
-    
-    debugLog("Dashboard initialized", {
-        hasTableBody: !!tableBody,
-        hasSearchInput: !!searchInput,
-        timestamp: new Date().toISOString()
-    });
 });
 
 // Global search function for button click
@@ -664,23 +786,4 @@ function searchEvent() {
         const event = new Event('input');
         searchInput.dispatchEvent(event);
     }
-}
-
-// Debug function untuk cek data
-function checkEventData() {
-    const events = JSON.parse(localStorage.getItem("events")) || [];
-    console.log("=== EVENT DATA DEBUG ===");
-    console.log("Total events:", events.length);
-    
-    events.forEach((event, index) => {
-        console.log(`Event ${index + 1}:`, {
-            id: event.id,
-            title: event.title || event.titleEvent,
-            approval: event.approval_status || event.approval,
-            status: event.status,
-            hasPoster: !!(event.poster_url || event.poster)
-        });
-    });
-    
-    return events;
 }

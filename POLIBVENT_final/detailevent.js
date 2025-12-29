@@ -122,7 +122,7 @@ function extractJson(text) {
 }
 
 // -----------------------------
-// FUNGSI VALIDASI FILE
+// FUNGSI VALIDASI FILE (DIPERBAIKI untuk 5MB)
 // -----------------------------
 function validateFileSize(fileInput) {
   const file = fileInput.files[0];
@@ -132,11 +132,11 @@ function validateFileSize(fileInput) {
   if (!file) return true;
   
   const minSize = 10 * 1024; // 10KB
-  const maxSize = 2 * 1024 * 1024; // 2MB
+  const maxSize = 5 * 1024 * 1024; // 5MB (diperbaiki dari 2MB ke 5MB)
   
   if (file.size < minSize) {
       if (errorElement) {
-          errorElement.textContent = `File terlalu kecil. Minimal ${minSize/1024}KB.`;
+          errorElement.textContent = `File terlalu kecil. Minimal ${(minSize/1024).toFixed(0)}KB.`;
           errorElement.style.display = 'block';
       }
       fileInput.value = '';
@@ -144,16 +144,19 @@ function validateFileSize(fileInput) {
   }
   
   if (file.size > maxSize) {
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
       if (errorElement) {
-          errorElement.textContent = `File terlalu besar. Maksimal ${maxSize/(1024*1024)}MB.`;
+          errorElement.textContent = `File terlalu besar (${fileSizeMB}MB). Maksimal ${maxSize/(1024*1024)}MB.`;
           errorElement.style.display = 'block';
       }
+      // Tampilkan alert tambahan
+      alert(`❌ ERROR: Ukuran file (${fileSizeMB}MB) melebihi batas maksimum 5MB!`);
       fileInput.value = '';
       return false;
   }
   
   // Validasi tipe file
-  const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+  const validTypes = ['image/jpeg', 'image/jpg', 'image/png','image/webp'];
   if (!validTypes.includes(file.type)) {
       if (errorElement) {
           errorElement.textContent = 'Format file tidak didukung. Gunakan JPG, PNG, GIF, atau WebP.';
@@ -255,6 +258,45 @@ async function loadEventData(selectedId) {
   }
 }
 
+// ============================================
+// VALIDASI TANGGAL DENGAN ALERT ERROR
+// ============================================
+
+// Fungsi validasi tanggal dengan alert
+function validateDateTimeWithAlert() {
+    const startDate = document.getElementById('editStartDate');
+    const endDate = document.getElementById('editEndDate');
+    const startTime = document.getElementById('editStartTime');
+    const endTime = document.getElementById('editEndTime');
+    
+    if (!startDate || !endDate || !startTime || !endTime) {
+        return true;
+    }
+    
+    // 1. Validasi: Tanggal selesai tidak boleh sebelum tanggal mulai
+    if (startDate.value && endDate.value) {
+        const start = new Date(startDate.value);
+        const end = new Date(endDate.value);
+        
+        if (end < start) {
+            alert('❌ ERROR: Tanggal selesai tidak boleh sebelum tanggal mulai!');
+            return false;
+        }
+    }
+    
+    // 2. Validasi: Jika tanggal sama, waktu selesai harus setelah waktu mulai
+    if (startDate.value === endDate.value && startTime.value && endTime.value) {
+        if (endTime.value <= startTime.value) {
+            alert('❌ ERROR: Pada tanggal yang sama, waktu selesai harus setelah waktu mulai!');
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+// ============================================
+
 // -----------------------------
 // EDIT MODAL, POPULATE, VALIDATION
 // -----------------------------
@@ -318,7 +360,7 @@ function initializeEditModal() {
         return;
       }
       
-      // Validasi file size
+      // Validasi file size (maksimal 5MB)
       if (!validateFileSize(posterInput)) {
         return;
       }
@@ -456,6 +498,12 @@ function validateEditForm() {
 
   if (!validateDates()) ok = false;
   if (!validateTimes()) ok = false;
+  
+  // Tambahkan validasi tanggal dengan alert
+  if (!validateDateTimeWithAlert()) {
+    ok = false;
+  }
+  
   return ok;
 }
 
@@ -524,15 +572,16 @@ function toBase64(file) {
 // HANDLE SUBMIT (EDIT) + PUT
 // -----------------------------
 async function handleEditEventForm() {
+  // Gunakan fungsi validasi yang sudah diperbarui
   if (!validateEditForm()) {
-    alert("❌ Harap isi semua field yang wajib diisi dengan benar.");
+    alert("❌ Harap perbaiki error di form sebelum melanjutkan!");
     return;
   }
 
-  // Validasi file size sebelum submit
+  // Validasi file size sebelum submit (dengan batas 5MB)
   const posterInput = document.getElementById('editPoster');
   if (posterInput.files[0] && !validateFileSize(posterInput)) {
-    alert("❌ File poster tidak valid. Pastikan ukuran dan format sesuai.");
+    alert("❌ File poster tidak valid. Pastikan ukuran dan format sesuai (maksimal 5MB).");
     return;
   }
 

@@ -34,6 +34,45 @@ function clearFileError() {
     }
 }
 
+// ============================================
+// VALIDASI TANGGAL DENGAN ALERT ERROR
+// ============================================
+
+// Fungsi validasi tanggal dan waktu
+function validateDateTime() {
+    const startDate = document.getElementById('startDate');
+    const endDate = document.getElementById('endDate');
+    const startTime = document.getElementById('startTime');
+    const endTime = document.getElementById('endTime');
+    
+    if (!startDate || !endDate || !startTime || !endTime) {
+        return true;
+    }
+    
+    // 1. Validasi: Tanggal selesai tidak boleh sebelum tanggal mulai
+    if (startDate.value && endDate.value) {
+        const start = new Date(startDate.value);
+        const end = new Date(endDate.value);
+        
+        if (end < start) {
+            alert('ERROR: Tanggal selesai tidak boleh sebelum tanggal mulai!');
+            return false;
+        }
+    }
+    
+    // 2. Validasi: Jika tanggal sama, waktu selesai harus setelah waktu mulai
+    if (startDate.value === endDate.value && startTime.value && endTime.value) {
+        if (endTime.value <= startTime.value) {
+            alert('ERROR: Pada tanggal yang sama, waktu selesai harus setelah waktu mulai!');
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+// ============================================
+
 // Initialize when DOM is loaded
 document.addEventListener("DOMContentLoaded", function() {
     debugLog("DOM Content Loaded - Public View");
@@ -119,16 +158,16 @@ function initializeModal() {
             clearFileError();
             
             if (file) {
-                // ✅ Validasi tipe file (HANYA JPG, JPEG & PNG)
-                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                // Validasi tipe file
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
                 if (!allowedTypes.includes(file.type)) {
-                    showFileError('Format file harus JPG, JPEG, atau PNG');
+                    showFileError('Format file harus JPG, JPEG, PNG, WEBP');
                     posterInput.value = ''; // Reset input
                     if (posterPreview) posterPreview.style.display = "none";
                     return;
                 }
                 
-                // ✅ Validasi ukuran file (maksimal 5 MB)
+                // Validasi ukuran file (maksimal 5 MB)
                 const maxSize = 5 * 1024 * 1024; // 5 MB
                 if (file.size > maxSize) {
                     const sizeInMB = (file.size / 1024 / 1024).toFixed(2);
@@ -169,11 +208,19 @@ function initializeModal() {
         });
     }
 
-    // Add event form submission
+    // Add event form submission - MODIFIED
     if (addEventForm) {
         addEventForm.addEventListener("submit", async function(e) {
             e.preventDefault();
             debugLog("Add event form submitted");
+            
+            // ============================
+            // TAMBAHKAN VALIDASI TANGGAL DI SINI
+            // ============================
+            if (!validateDateTime()) {
+                // Jangan lanjutkan jika validasi tanggal gagal
+                return;
+            }
             
             // Validasi file sebelum submit
             const posterInput = document.getElementById("poster");
@@ -181,9 +228,9 @@ function initializeModal() {
                 const file = posterInput.files[0];
                 
                 // Validasi tipe file
-                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
                 if (!allowedTypes.includes(file.type)) {
-                    showFileError('Format file harus JPG, JPEG, atau PNG');
+                    showFileError('Format file harus JPG, JPEG, PNG, WEBP');
                     posterInput.focus();
                     return;
                 }
@@ -231,11 +278,11 @@ async function handleAddEventForm() {
             });
             
             // Final validation before processing
-            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
             const maxSize = 5 * 1024 * 1024;
             
             if (!allowedTypes.includes(posterFile.type)) {
-                showFileError('Format file tidak valid. Hanya JPG, JPEG, atau PNG');
+                showFileError('Format file tidak valid. Hanya JPG, JPEG, PNG, WEBP');
                 return;
             }
             
