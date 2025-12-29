@@ -429,4 +429,12 @@ footer p {
   #profil h2 {
     font-size: 5vw;
   }
+
+  .team-title {
+    font-size: 1.8rem;
+  }
+
+  .contact-title {
+    font-size: 1.8rem;
+  }
 }
