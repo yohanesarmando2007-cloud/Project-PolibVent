@@ -13,9 +13,7 @@ function debugLog(message, data = null) {
     console.log(`[DASHBOARD] ${message}`, data || '');
 }
 
-// ============================================
 // VALIDASI TANGGAL DENGAN ALERT ERROR
-// ============================================
 
 // Fungsi validasi tanggal dengan alert
 function validateDateTimeWithAlert(form) {
@@ -50,9 +48,9 @@ function validateDateTimeWithAlert(form) {
     return true;
 }
 
-// ============================================
+
 // VALIDASI FILE POSTER (maksimal 5MB)
-// ============================================
+
 
 function validatePosterFile(file) {
     if (!file) return { valid: true };
@@ -89,7 +87,7 @@ function validatePosterFile(file) {
     return { valid: true };
 }
 
-// ============================================
+
 
 // Initialize when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
@@ -472,7 +470,7 @@ document.addEventListener("DOMContentLoaded", () => {
         displayEventsInTable(validEvents);
     }
 
-    // Display events in table - IMPROVED VERSION
+    // Display events in table - MODIFIED VERSION WITH ICONS
     function displayEventsInTable(events) {
         debugLog(`Displaying ${events?.length || 0} events in table`);
         tableBody.innerHTML = "";
@@ -506,21 +504,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
             let approveUI = "";
 
-            // UI untuk kolom persetujuan
+            // UI untuk kolom persetujuan DENGAN ICON FONT AWESOME (DIMODIFIKASI)
             if (eventApproval === "Disetujui") {
-                approveUI = `<span style="color:green; font-weight:bold;">✔ Disetujui</span>`;
+                approveUI = `
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        <i class="fas fa-check-circle" style="color:#28a745; font-size:1.2rem;"></i>
+                        <span style="color:#28a745; font-weight:600;">Disetujui</span>
+                    </div>
+                `;
             } else if (eventApproval === "Ditolak") {
-                approveUI = `<span style="color:red; font-weight:bold;">✖ Ditolak</span>`;
+                approveUI = `
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        <i class="fas fa-times-circle" style="color:#dc3545; font-size:1.2rem;"></i>
+                        <span style="color:#dc3545; font-weight:600;">Ditolak</span>
+                    </div>
+                `;
             } else {
                 approveUI = `
-                    <button class="btn-approve" data-id="${eventId}" 
-                            style="background:green;color:white; padding:5px 10px; border:none; border-radius:4px; cursor:pointer; margin-right:5px;">
-                        Setujui
-                    </button>
-                    <button class="btn-reject" data-id="${eventId}" 
-                            style="background:red;color:white; padding:5px 10px; border:none; border-radius:4px; cursor:pointer;">
-                        Tolak
-                    </button>
+                    <div class="approval-actions" style="display:flex; gap:0.5rem;">
+                        <button class="btn-approve" data-id="${eventId}" 
+                                title="Setujui Event"
+                                style="background:#28a745; color:white; padding:0.5rem; border:none; border-radius:6px; cursor:pointer; transition:all 0.3s ease; width:40px; height:40px; display:flex; align-items:center; justify-content:center;">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button class="btn-reject" data-id="${eventId}" 
+                                title="Tolak Event"
+                                style="background:#dc3545; color:white; padding:0.5rem; border:none; border-radius:6px; cursor:pointer; transition:all 0.3s ease; width:40px; height:40px; display:flex; align-items:center; justify-content:center;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                 `;
             }
 
@@ -543,18 +555,35 @@ document.addEventListener("DOMContentLoaded", () => {
                 </td>
                 <td>${approveUI}</td>
                 <td>
-                    <button class="btn-edit" data-id="${eventId}" 
-                            style="background:#3b82f6;color:white; padding:5px 10px; border:none; border-radius:4px; cursor:pointer; margin-right:5px;">
-                        Edit
-                    </button>
-                    <button class="btn-delete" data-id="${eventId}" 
-                            style="background:#dc2626;color:white; padding:5px 10px; border:none; border-radius:4px; cursor:pointer;">
-                        Hapus
-                    </button>
+                    <div class="action-buttons" style="display:flex; gap:0.5rem;">
+                        <button class="btn-edit" data-id="${eventId}" 
+                                title="Edit Event"
+                                style="background:#3b82f6; color:white; padding:0.5rem; border:none; border-radius:6px; cursor:pointer; transition:all 0.3s ease; width:40px; height:40px; display:flex; align-items:center; justify-content:center;">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-delete" data-id="${eventId}" 
+                                title="Hapus Event"
+                                style="background:#dc2626; color:white; padding:0.5rem; border:none; border-radius:6px; cursor:pointer; transition:all 0.3s ease; width:40px; height:40px; display:flex; align-items:center; justify-content:center;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
                 </td>
             `;
 
             tableBody.appendChild(row);
+        });
+
+        // Add hover effects for action buttons
+        const actionButtons = tableBody.querySelectorAll('.btn-edit, .btn-delete, .btn-approve, .btn-reject');
+        actionButtons.forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                btn.style.transform = 'translateY(-2px)';
+                btn.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translateY(0)';
+                btn.style.boxShadow = 'none';
+            });
         });
     }
 
@@ -590,11 +619,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Table event delegation
+    // Table event delegation - MODIFIED FOR ICON BUTTONS
     tableBody.addEventListener("click", async (e) => {
-        // DELETE event
-        if (e.target.classList.contains("btn-delete")) {
-            const id = e.target.dataset.id;
+        // DELETE event - menangani ikon dan tombol
+        if (e.target.classList.contains("fa-trash") || e.target.classList.contains("btn-delete")) {
+            const btn = e.target.classList.contains("fa-trash") ? e.target.parentElement : e.target;
+            const id = btn.dataset.id;
             if (confirm("Yakin ingin menghapus event?")) {
                 debugLog(`Deleting event: ${id}`);
                 try {
@@ -624,9 +654,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // EDIT event
-        if (e.target.classList.contains("btn-edit")) {
-            const id = e.target.dataset.id;
+        // EDIT event - menangani ikon dan tombol
+        if (e.target.classList.contains("fa-edit") || e.target.classList.contains("btn-edit")) {
+            const btn = e.target.classList.contains("fa-edit") ? e.target.parentElement : e.target;
+            const id = btn.dataset.id;
             debugLog(`Editing event: ${id}`);
             try {
                 // Get event from database
@@ -651,9 +682,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // APPROVE event
-        if (e.target.classList.contains("btn-approve")) {
-            const id = e.target.dataset.id;
+        // APPROVE event - menangani ikon dan tombol
+        if (e.target.classList.contains("fa-check") || e.target.classList.contains("btn-approve")) {
+            const btn = e.target.classList.contains("fa-check") ? e.target.parentElement : e.target;
+            const id = btn.dataset.id;
             debugLog(`Approving event: ${id}`);
             
             try {
@@ -693,9 +725,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // REJECT event
-        if (e.target.classList.contains("btn-reject")) {
-            const id = e.target.dataset.id;
+        // REJECT event - menangani ikon dan tombol
+        if (e.target.classList.contains("fa-times") || e.target.classList.contains("btn-reject")) {
+            const btn = e.target.classList.contains("fa-times") ? e.target.parentElement : e.target;
+            const id = btn.dataset.id;
             debugLog(`Rejecting event: ${id}`);
             
             try {
