@@ -15,7 +15,7 @@
 
 ## 🎯 Overview
 
-**PolibVent** adalah sistem manajemen event berbasis web yang dirancang khusus untuk Politeknik Negeri Batam. Platform ini memungkinkan admin dan mahasiswa untuk mengelola berbagai kegiatan kampus secara digital dengan antarmuka yang intuitif dan responsif.
+PolibVent adalah papan pengumuman digital yang menampilkan kalender acara-acara kampus, seperti seminar, lokakarya, kompetisi, atau festival. Pengguna dapat melihat detail setiap acara, seperti tanggal, waktu, lokasi, dan deskripsi singkat. Sistem ini bertujuan untuk meningkatkan partisipasi mahasiswa dalam kegiatan di luar kelas.
 
 ## ✨ Fitur Utama
 
